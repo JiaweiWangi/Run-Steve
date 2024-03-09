@@ -3,9 +3,11 @@
 #include<time.h>
 #include<conio.h>
 #include<cstring>
+#include<cstdlib>
 
 #define WIDTH 540
 #define HEIGHT 920
+FILE* dataFile;
 
 const clock_t FPS = 1000 / 60;
 
@@ -22,13 +24,16 @@ struct newUser
 	char password[21];
 	int score;
 	newUser* next;
-	newUser() : name("\0"),password("\0"),score(0) {}
+	newUser() : name("\0"),password("\0"),score(0),next(NULL) {}
 };
 
 
 void menuPage();
 bool imageButtonDetect(imageLocate& locate, IMAGE& image, ExMessage& msg);
-void loginAndRegisterPage(bool& loginPageFlag,bool &loginPasswordFlag, IMAGE& page, ExMessage& msg, newUser& user);
+void loginAndRegisterPage(bool& loginPageFlag,bool &loginPasswordFlag, bool& loginFlag,IMAGE& page, ExMessage& msg, newUser& user);
+void readUserInfo(newUser*);
+bool cheackUser(newUser* head, newUser target);
+void headText(int loginStatu, newUser& user);
 
 int main()
 {
@@ -66,7 +71,10 @@ void menuPage()
 	IMAGE lStart_1;
 	IMAGE loginPage;
 	IMAGE registerPage;
-
+	
+	fopen_s(&dataFile, "../data/data.txt", "a+");
+	newUser* head=NULL;
+	readUserInfo(head);
 	char file_name[128];
 	IMAGE menuPageVideoImage[menuPageVideoNum];
 
@@ -99,11 +107,12 @@ void menuPage()
 	bool loginPageFlag = 0;
 	bool registerPageFlag = 0;
 	bool loginOrRegisterPasswordFlag = 0;
+	bool loginFlag = 0; 
+	int loginStatu = 0; //0为初始状况，1为登录成功，2为登录失败，3为注册成功
 	int startTime;
 	int freamTime;
-
 	newUser user;
-
+	
 	settextstyle(35, 0, _T("Consolas"));
 	settextcolor(BLACK);
 	setbkcolor(WHITE);
@@ -171,9 +180,25 @@ void menuPage()
 		putimage(runSteveLovate.x, runSteveLovate.y, &runSteve_1, SRCAND);
 		putimage(runSteveLovate.x, runSteveLovate.y, &runSteve, SRCPAINT);
 		if (loginPageFlag)
-			loginAndRegisterPage(loginPageFlag, loginOrRegisterPasswordFlag, loginPage, msg, user);
+		{
+			loginAndRegisterPage(loginPageFlag, loginOrRegisterPasswordFlag, loginFlag, loginPage, msg, user);
+			if (loginFlag)
+			{
+				if (cheackUser(head, user))
+					loginStatu = 1;
+				else
+					loginStatu = 2;
+			}
+		}
 		else if (registerPageFlag)
-			loginAndRegisterPage(registerPageFlag, loginOrRegisterPasswordFlag, registerPage, msg, user);
+			loginAndRegisterPage(registerPageFlag, loginOrRegisterPasswordFlag, loginFlag, registerPage, msg, user);
+
+		headText(loginStatu, user);
+
+
+		
+
+
 
 		EndBatchDraw();
 
@@ -192,7 +217,7 @@ bool imageButtonDetect(imageLocate& locate, IMAGE& image, ExMessage& msg)
 		return 0;
 }
 
-void loginAndRegisterPage(bool& loginPageFlag,bool &loginPasswordFlag,IMAGE& page,ExMessage& msg,newUser& user)
+void loginAndRegisterPage(bool& loginPageFlag,bool &loginPasswordFlag,bool &loginFlag,IMAGE& page,ExMessage& msg,newUser& user)
 {
 
 	imageLocate loginPageLocate(44, 360);
@@ -240,6 +265,10 @@ void loginAndRegisterPage(bool& loginPageFlag,bool &loginPasswordFlag,IMAGE& pag
 			{
 				loginPasswordFlag = 0;
 				loginPageFlag = 0;
+				loginFlag = 1;
+				fprintf(dataFile, "%s\n", user.name);
+				fprintf(dataFile, "%s\n", user.password);
+				fclose(dataFile);
 			}
 			else
 			{
@@ -251,4 +280,58 @@ void loginAndRegisterPage(bool& loginPageFlag,bool &loginPasswordFlag,IMAGE& pag
 		outtextxy(passwordLocate.x, passwordLocate.y, user.password);
 	}
 
+}
+
+void readUserInfo(newUser* head)
+{
+	char buffer[20];
+	while (!feof(dataFile))
+	{
+		newUser* p = (newUser*)malloc(sizeof(newUser));
+		fgets(p->name, sizeof(p->name), dataFile);
+		fgets(p->password, sizeof(p->password), dataFile);
+		p->next = NULL;
+		newUser* last = head;
+		if (last)
+		{
+			while (last->next)
+			{
+				last = last->next;
+			}
+		}
+		else
+		{
+			head = p;
+		}
+	}
+}
+
+bool cheackUser(newUser* head, newUser target)
+{
+	newUser* temp = head;
+	while (temp)
+	{
+		if (!strcmp(temp->name, target.name) && !strcmp(temp->password, target.password))
+			return 1;
+		temp = temp->next;
+	}
+	return 0;
+}
+
+void headText(int loginStatu,newUser& user)
+{
+	char s[30]="";
+	char s2[40] = "Login failed, Please try again";
+	switch (loginStatu)
+	{
+	case 0:
+		break;
+	case 1:
+		sprintf_s(s, "Login successful,Welcome %s", user.name);
+		outtextxy((WIDTH-textwidth(s))/2, 200, s);
+	case 2:
+		outtextxy((WIDTH - textwidth(s2)) / 2, 200, s2);
+	default:
+		break;
+	}
 }
