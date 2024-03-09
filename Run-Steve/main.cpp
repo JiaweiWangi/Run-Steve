@@ -27,7 +27,8 @@ struct newUser
 
 
 void menuPage();
-bool imageButtonDetect(imageLocate&, IMAGE&, ExMessage&);
+bool imageButtonDetect(imageLocate& locate, IMAGE& image, ExMessage& msg);
+void loginAndRegisterPage(bool& loginPageFlag, bool& loginPasswordFlag, IMAGE& page, ExMessage& msg, newUser& user);
 
 int main()
 {
@@ -45,9 +46,7 @@ void menuPage()
 	imageLocate startLocate(132, 433);
 	imageLocate loginLocate(110, 580);
 	imageLocate registerLocate(21, 700);
-	imageLocate loginPageLocate(44, 360);
-	imageLocate userLocate(255, 415);
-	imageLocate passwordLocate(255, 484);
+
 
 	IMAGE menu;
 	IMAGE login;
@@ -99,8 +98,7 @@ void menuPage()
 	bool loginPasswordFlag = 0;
 	int startTime;
 	int freamTime;
-	char ch[2];
-	ch[1] = '\0';
+
 	newUser user;
 
 	settextstyle(35, 0, _T("Consolas"));
@@ -161,56 +159,7 @@ void menuPage()
 		putimage(runSteveLovate.x, runSteveLovate.y, &runSteve_1, SRCAND);
 		putimage(runSteveLovate.x, runSteveLovate.y, &runSteve, SRCPAINT);
 
-		if (loginPageFlag&&!loginPasswordFlag)
-		{
-			putimage(loginPageLocate.x, loginPageLocate.y, &loginPage);
-
-			if (msg.message == WM_KEYDOWN)
-			{
-				
-				ch[0] = msg.vkcode;
-				printf("%d", ch[0]);
-				if (ch[0] == 8 && strlen(user.name)>0)
-				{
-					user.name[strlen(user.name) - 1] = '\0';
-				}
-				else if (ch[0] == 13)
-				{
-					loginPasswordFlag = 1;
-				}
-				else
-				{
-					if(strlen(user.name)< 15)
-						strcat_s(user.name, ch);
-				}
-			}
-			outtextxy(userLocate.x, userLocate.y, user.name);
-		}
-		else if (loginPageFlag && loginPasswordFlag)
-		{
-			putimage(loginPageLocate.x, loginPageLocate.y, &loginPage);
-			if (msg.message == WM_KEYDOWN)
-			{
-
-				ch[0] = msg.vkcode;
-				if (ch[0] == 8 && strlen(user.password) > 0)
-				{
-					user.password[strlen(user.password) - 1] = '\0';
-				}
-				else if (ch[0] == 13)
-				{
-					loginPasswordFlag = 0;
-					loginPageFlag = 0;
-				}
-				else
-				{
-					if (strlen(user.password) < 15)
-						strcat_s(user.password, ch);
-				}
-			}
-			outtextxy(userLocate.x, userLocate.y, user.name);
-			outtextxy(passwordLocate.x, passwordLocate.y, user.password);
-		}
+		loginAndRegisterPage(loginPageFlag, loginPasswordFlag, loginPage, msg, user);
 
 		EndBatchDraw();
 
@@ -227,4 +176,65 @@ bool imageButtonDetect(imageLocate& locate, IMAGE& image, ExMessage& msg)
 		return 1;
 	else
 		return 0;
+}
+
+void loginAndRegisterPage(bool& loginPageFlag,bool &loginPasswordFlag,IMAGE& page,ExMessage& msg,newUser& user)
+{
+
+	imageLocate loginPageLocate(44, 360);
+	imageLocate userLocate(255, 415);
+	imageLocate passwordLocate(255, 484);
+	char ch[2];
+	ch[1] = '\0';
+
+	if (loginPageFlag && !loginPasswordFlag)
+	{
+		putimage(loginPageLocate.x, loginPageLocate.y, &page);
+		if (msg.message == WM_KEYDOWN)
+		{
+
+			ch[0] = msg.vkcode;
+			printf("%d", ch[0]);
+			if (ch[0] == 8 && strlen(user.name) > 0)
+			{
+				user.name[strlen(user.name) - 1] = '\0';
+			}
+			else if (ch[0] == 13)
+			{
+				loginPasswordFlag = 1;
+			}
+			else
+			{
+				if (ch[0] != 8 && strlen(user.name) < 15)
+					strcat_s(user.name, ch);
+			}
+		}
+		outtextxy(userLocate.x, userLocate.y, user.name);
+	}
+	else if (loginPageFlag && loginPasswordFlag)
+	{
+		putimage(loginPageLocate.x, loginPageLocate.y, &page);
+		if (msg.message == WM_KEYDOWN)
+		{
+
+			ch[0] = msg.vkcode;
+			if (ch[0] == 8 && strlen(user.password) > 0)
+			{
+				user.password[strlen(user.password) - 1] = '\0';
+			}
+			else if (ch[0] == 13)
+			{
+				loginPasswordFlag = 0;
+				loginPageFlag = 0;
+			}
+			else
+			{
+				if (ch[0] != 8 && strlen(user.password) < 15)
+					strcat_s(user.password, ch);
+			}
+		}
+		outtextxy(userLocate.x, userLocate.y, user.name);
+		outtextxy(passwordLocate.x, passwordLocate.y, user.password);
+	}
+
 }
