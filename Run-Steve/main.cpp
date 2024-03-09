@@ -16,6 +16,15 @@ struct imageLocate
 	imageLocate(int x, int y) : x(x), y(y) {}
 };
 
+struct newUser
+{
+	char name[21];
+	char password[21];
+	int score;
+	newUser* next;
+	newUser() : name("\0"),password("\0"),score(0) {}
+};
+
 
 void menuPage();
 bool imageButtonDetect(imageLocate&, IMAGE&, ExMessage&);
@@ -92,8 +101,7 @@ void menuPage()
 	int freamTime;
 	char ch[2];
 	ch[1] = '\0';
-	char user[20]="\0";
-	char password[20] = "\0";
+	newUser user;
 
 	settextstyle(35, 0, _T("Consolas"));
 	settextcolor(BLACK);
@@ -163,9 +171,9 @@ void menuPage()
 				
 				ch[0] = msg.vkcode;
 				printf("%d", ch[0]);
-				if (ch[0] == 8)
+				if (ch[0] == 8 && strlen(user.name)>0)
 				{
-					user[strlen(user) - 1] = '\0';
+					user.name[strlen(user.name) - 1] = '\0';
 				}
 				else if (ch[0] == 13)
 				{
@@ -173,10 +181,11 @@ void menuPage()
 				}
 				else
 				{
-					strcat_s(user, ch);
+					if(strlen(user.name)< 15)
+						strcat_s(user.name, ch);
 				}
 			}
-			outtextxy(userLocate.x, userLocate.y, user);
+			outtextxy(userLocate.x, userLocate.y, user.name);
 		}
 		else if (loginPageFlag && loginPasswordFlag)
 		{
@@ -185,9 +194,9 @@ void menuPage()
 			{
 
 				ch[0] = msg.vkcode;
-				if (ch[0] == 8)
+				if (ch[0] == 8 && strlen(user.password) > 0)
 				{
-					password[strlen(password) - 1] = '\0';
+					user.password[strlen(user.password) - 1] = '\0';
 				}
 				else if (ch[0] == 13)
 				{
@@ -196,11 +205,12 @@ void menuPage()
 				}
 				else
 				{
-					strcat_s(password, ch);
+					if (strlen(user.password) < 15)
+						strcat_s(user.password, ch);
 				}
 			}
-			outtextxy(userLocate.x, userLocate.y, user);
-			outtextxy(passwordLocate.x, passwordLocate.y, password);
+			outtextxy(userLocate.x, userLocate.y, user.name);
+			outtextxy(passwordLocate.x, passwordLocate.y, user.password);
 		}
 
 		EndBatchDraw();
