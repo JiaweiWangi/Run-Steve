@@ -28,7 +28,7 @@ struct newUser
 
 void menuPage();
 bool imageButtonDetect(imageLocate& locate, IMAGE& image, ExMessage& msg);
-void loginAndRegisterPage(bool& loginPageFlag, bool& loginPasswordFlag, IMAGE& page, ExMessage& msg, newUser& user);
+void loginAndRegisterPage(bool& loginPageFlag,bool &loginPasswordFlag, IMAGE& page, ExMessage& msg, newUser& user);
 
 int main()
 {
@@ -158,8 +158,8 @@ void menuPage()
 		}
 		putimage(runSteveLovate.x, runSteveLovate.y, &runSteve_1, SRCAND);
 		putimage(runSteveLovate.x, runSteveLovate.y, &runSteve, SRCPAINT);
-
-		loginAndRegisterPage(loginPageFlag, loginPasswordFlag, loginPage, msg, user);
+		if(loginPageFlag)
+			loginAndRegisterPage(loginPageFlag, loginPasswordFlag, loginPage, msg, user);
 
 		EndBatchDraw();
 
@@ -187,7 +187,7 @@ void loginAndRegisterPage(bool& loginPageFlag,bool &loginPasswordFlag,IMAGE& pag
 	char ch[2];
 	ch[1] = '\0';
 
-	if (loginPageFlag && !loginPasswordFlag)
+	if (!loginPasswordFlag)
 	{
 		putimage(loginPageLocate.x, loginPageLocate.y, &page);
 		if (msg.message == WM_KEYDOWN)
@@ -211,7 +211,7 @@ void loginAndRegisterPage(bool& loginPageFlag,bool &loginPasswordFlag,IMAGE& pag
 		}
 		outtextxy(userLocate.x, userLocate.y, user.name);
 	}
-	else if (loginPageFlag && loginPasswordFlag)
+	else if (loginPasswordFlag)
 	{
 		putimage(loginPageLocate.x, loginPageLocate.y, &page);
 		if (msg.message == WM_KEYDOWN)
