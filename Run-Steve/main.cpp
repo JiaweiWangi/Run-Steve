@@ -203,7 +203,6 @@ void menuPage()
 			outtextxy(passwordLocate.x, passwordLocate.y, password);
 		}
 
-
 		EndBatchDraw();
 
 		freamTime = clock() - startTime;
