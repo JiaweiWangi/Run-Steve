@@ -31,7 +31,7 @@ struct newUser
 void menuPage();
 bool imageButtonDetect(imageLocate& locate, IMAGE& image, ExMessage& msg);
 void loginAndRegisterPage(bool& loginPageFlag,bool &loginPasswordFlag, bool& loginFlag,IMAGE& page, ExMessage& msg, newUser& user);
-void readUserInfo(newUser*);
+newUser* readUserInfo();
 bool cheackUser(newUser* head, newUser target);
 void headText(int loginStatu, newUser& user);
 
@@ -73,8 +73,8 @@ void menuPage()
 	IMAGE registerPage;
 	
 	fopen_s(&dataFile, "../data/data.txt", "a+");
-	newUser* head=NULL;
-	readUserInfo(head);
+	newUser* head;
+	head = readUserInfo();
 	char file_name[128];
 	IMAGE menuPageVideoImage[menuPageVideoNum];
 
@@ -282,14 +282,18 @@ void loginAndRegisterPage(bool& loginPageFlag,bool &loginPasswordFlag,bool &logi
 
 }
 
-void readUserInfo(newUser* head)
+newUser* readUserInfo()
 {
+	newUser* head = NULL;
 	char buffer[20];
 	while (!feof(dataFile))
 	{
 		newUser* p = (newUser*)malloc(sizeof(newUser));
 		fgets(p->name, sizeof(p->name), dataFile);
 		fgets(p->password, sizeof(p->password), dataFile);
+		p->name[strcspn(p->name,"\n")]='\0';
+		p->password[strcspn(p->password,"\n")]= '\0';
+		printf("%s\n%s\n", p->name, p->password);
 		p->next = NULL;
 		newUser* last = head;
 		if (last)
@@ -298,12 +302,14 @@ void readUserInfo(newUser* head)
 			{
 				last = last->next;
 			}
+			last->next = p;
 		}
 		else
 		{
 			head = p;
 		}
 	}
+	return head;
 }
 
 bool cheackUser(newUser* head, newUser target)
@@ -320,8 +326,8 @@ bool cheackUser(newUser* head, newUser target)
 
 void headText(int loginStatu,newUser& user)
 {
-	char s[30]="";
-	char s2[40] = "Login failed, Please try again";
+	char s[50]="";
+	char s2[50] = "Login failed, Please try again";
 	switch (loginStatu)
 	{
 	case 0:
@@ -329,8 +335,10 @@ void headText(int loginStatu,newUser& user)
 	case 1:
 		sprintf_s(s, "Login successful,Welcome %s", user.name);
 		outtextxy((WIDTH-textwidth(s))/2, 200, s);
+		break;
 	case 2:
 		outtextxy((WIDTH - textwidth(s2)) / 2, 200, s2);
+		break;
 	default:
 		break;
 	}
