@@ -107,7 +107,6 @@ void menuPage()
 	settextcolor(BLACK);
 	setbkcolor(WHITE);
 
-
 	while (true)
 	{
 		startTime = clock();
