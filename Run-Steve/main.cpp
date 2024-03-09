@@ -1,6 +1,8 @@
 #include<cstdio>
 #include<graphics.h>
 #include<time.h>
+#include<conio.h>
+#include<cstring>
 
 #define WIDTH 540
 #define HEIGHT 920
@@ -35,8 +37,8 @@ void menuPage()
 	imageLocate loginLocate(110, 580);
 	imageLocate registerLocate(21, 700);
 	imageLocate loginPageLocate(44, 360);
-	imageLocate userLocate(255, 411);
-	imageLocate passwordLocate(255, 486);
+	imageLocate userLocate(255, 415);
+	imageLocate passwordLocate(255, 484);
 
 	IMAGE menu;
 	IMAGE login;
@@ -85,8 +87,18 @@ void menuPage()
 	int num = 0;
 	ExMessage msg;
 	bool loginPageFlag = 0;
+	bool loginPasswordFlag = 0;
 	int startTime;
 	int freamTime;
+	char ch[2];
+	ch[1] = '\0';
+	char user[20]="\0";
+	char password[20] = "\0";
+
+	settextstyle(35, 0, _T("Consolas"));
+	settextcolor(BLACK);
+	setbkcolor(WHITE);
+
 
 	while (true)
 	{
@@ -142,9 +154,53 @@ void menuPage()
 		putimage(runSteveLovate.x, runSteveLovate.y, &runSteve_1, SRCAND);
 		putimage(runSteveLovate.x, runSteveLovate.y, &runSteve, SRCPAINT);
 
-		if (loginPageFlag)
+		if (loginPageFlag&&!loginPasswordFlag)
 		{
 			putimage(loginPageLocate.x, loginPageLocate.y, &loginPage);
+
+			if (msg.message == WM_KEYDOWN)
+			{
+				
+				ch[0] = msg.vkcode;
+				printf("%d", ch[0]);
+				if (ch[0] == 8)
+				{
+					user[strlen(user) - 1] = '\0';
+				}
+				else if (ch[0] == 13)
+				{
+					loginPasswordFlag = 1;
+				}
+				else
+				{
+					strcat_s(user, ch);
+				}
+			}
+			outtextxy(userLocate.x, userLocate.y, user);
+		}
+		else if (loginPageFlag && loginPasswordFlag)
+		{
+			putimage(loginPageLocate.x, loginPageLocate.y, &loginPage);
+			if (msg.message == WM_KEYDOWN)
+			{
+
+				ch[0] = msg.vkcode;
+				if (ch[0] == 8)
+				{
+					password[strlen(password) - 1] = '\0';
+				}
+				else if (ch[0] == 13)
+				{
+					loginPasswordFlag = 0;
+					loginPageFlag = 0;
+				}
+				else
+				{
+					strcat_s(password, ch);
+				}
+			}
+			outtextxy(userLocate.x, userLocate.y, user);
+			outtextxy(passwordLocate.x, passwordLocate.y, password);
 		}
 
 
