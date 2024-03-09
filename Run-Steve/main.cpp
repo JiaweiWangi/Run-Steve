@@ -6,8 +6,6 @@
 #define HEIGHT 920
 
 const clock_t FPS = 1000 / 60;
-int startTime;
-int freamTime;
 
 struct imageLocate
 {
@@ -87,12 +85,14 @@ void menuPage()
 	int num = 0;
 	ExMessage msg;
 	bool loginPageFlag = 0;
+	int startTime;
+	int freamTime;
 
 	while (true)
 	{
 		startTime = clock();
 		cleardevice();
-		
+		peekmessage(&msg);
 
 		BeginBatchDraw();
 
@@ -100,51 +100,48 @@ void menuPage()
 		num++;
 		if (num == menuPageVideoNum)
 			num = 0;
-		if (peekmessage(&msg, EX_MOUSE))
+		if (imageButtonDetect(startLocate,start,msg))
 		{
-			if (imageButtonDetect(startLocate, start, msg))
-			{
-				putimage(startLocate.x, startLocate.y, &lStart_1, SRCAND);
-				putimage(startLocate.x, startLocate.y, &lStart, SRCPAINT);
-			}
-			else
-			{
-				putimage(startLocate.x, startLocate.y, &start_1, SRCAND);
-				putimage(startLocate.x, startLocate.y, &start, SRCPAINT);
-			}
-			if (imageButtonDetect(loginLocate, login, msg))
-			{
-				if (msg.message == WM_LBUTTONDOWN)
-				{
-					loginPageFlag = 1;
-				}
-				else
-				{
-					putimage(loginLocate.x, loginLocate.y, &lLogin_1, SRCAND);
-					putimage(loginLocate.x, loginLocate.y, &lLogin, SRCPAINT);
-				}
-
-			}
-			else
-			{
-				putimage(loginLocate.x, loginLocate.y, &login_1, SRCAND);
-				putimage(loginLocate.x, loginLocate.y, &login, SRCPAINT);
-
-			}
-			if (imageButtonDetect(registerLocate, register1, msg))
-			{
-				putimage(registerLocate.x, registerLocate.y, &lRegister_1, SRCAND);
-				putimage(registerLocate.x, registerLocate.y, &lRegister, SRCPAINT);
-			}
-			else
-			{
-				putimage(registerLocate.x, registerLocate.y, &register_1, SRCAND);
-				putimage(registerLocate.x, registerLocate.y, &register1, SRCPAINT);
-			}
-			putimage(runSteveLovate.x, runSteveLovate.y, &runSteve_1, SRCAND);
-			putimage(runSteveLovate.x, runSteveLovate.y, &runSteve, SRCPAINT);
+			putimage(startLocate.x, startLocate.y, &lStart_1, SRCAND);
+			putimage(startLocate.x, startLocate.y, &lStart, SRCPAINT);
 		}
-		
+		else
+		{
+			putimage(startLocate.x, startLocate.y, &start_1, SRCAND);
+			putimage(startLocate.x, startLocate.y, &start, SRCPAINT);
+		}
+		if (imageButtonDetect(loginLocate, login, msg))
+		{
+			if (msg.message == WM_LBUTTONDOWN)
+			{
+				loginPageFlag = 1;
+			}
+			else
+			{
+				putimage(loginLocate.x , loginLocate.y, &lLogin_1, SRCAND);
+				putimage(loginLocate.x, loginLocate.y, &lLogin, SRCPAINT);
+			}
+			
+		}
+		else
+		{
+			putimage(loginLocate.x, loginLocate.y, &login_1, SRCAND);
+			putimage(loginLocate.x, loginLocate.y, &login, SRCPAINT);
+			
+		}
+		if (imageButtonDetect(registerLocate, register1, msg))
+		{
+			putimage(registerLocate.x, registerLocate.y, &lRegister_1, SRCAND);
+			putimage(registerLocate.x, registerLocate.y, &lRegister, SRCPAINT);
+		}
+		else
+		{
+			putimage(registerLocate.x, registerLocate.y, &register_1, SRCAND);
+			putimage(registerLocate.x, registerLocate.y, &register1, SRCPAINT);
+		}
+		putimage(runSteveLovate.x, runSteveLovate.y, &runSteve_1, SRCAND);
+		putimage(runSteveLovate.x, runSteveLovate.y, &runSteve, SRCPAINT);
+
 		if (loginPageFlag)
 		{
 			putimage(loginPageLocate.x, loginPageLocate.y, &loginPage);
