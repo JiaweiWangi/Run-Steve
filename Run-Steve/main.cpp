@@ -65,6 +65,7 @@ void menuPage()
 	IMAGE lRegister_1;
 	IMAGE lStart_1;
 	IMAGE loginPage;
+	IMAGE registerPage;
 
 	char file_name[128];
 	IMAGE menuPageVideoImage[menuPageVideoNum];
@@ -91,11 +92,13 @@ void menuPage()
 	loadimage(&lRegister_1, _T("../image/title/lregister_1.png"));
 	loadimage(&lStart_1, _T("../image/title/lstart_1.png"));
 	loadimage(&loginPage, _T("../image/title/loginpage.png"));
+	loadimage(&registerPage, _T("../image/title/registerpage.png"));
 
 	int num = 0;
 	ExMessage msg;
 	bool loginPageFlag = 0;
-	bool loginPasswordFlag = 0;
+	bool registerPageFlag = 0;
+	bool loginOrRegisterPasswordFlag = 0;
 	int startTime;
 	int freamTime;
 
@@ -132,6 +135,7 @@ void menuPage()
 			if (msg.message == WM_LBUTTONDOWN)
 			{
 				loginPageFlag = 1;
+				registerPageFlag = 0;
 			}
 			else
 			{
@@ -148,8 +152,16 @@ void menuPage()
 		}
 		if (imageButtonDetect(registerLocate, register1, msg))
 		{
-			putimage(registerLocate.x, registerLocate.y, &lRegister_1, SRCAND);
-			putimage(registerLocate.x, registerLocate.y, &lRegister, SRCPAINT);
+			if (msg.message == WM_LBUTTONDOWN)
+			{
+				registerPageFlag = 1;
+				loginPageFlag = 0;
+			}
+			else
+			{
+				putimage(registerLocate.x, registerLocate.y, &lRegister_1, SRCAND);
+				putimage(registerLocate.x, registerLocate.y, &lRegister, SRCPAINT);
+			}
 		}
 		else
 		{
@@ -158,8 +170,10 @@ void menuPage()
 		}
 		putimage(runSteveLovate.x, runSteveLovate.y, &runSteve_1, SRCAND);
 		putimage(runSteveLovate.x, runSteveLovate.y, &runSteve, SRCPAINT);
-		if(loginPageFlag)
-			loginAndRegisterPage(loginPageFlag, loginPasswordFlag, loginPage, msg, user);
+		if (loginPageFlag)
+			loginAndRegisterPage(loginPageFlag, loginOrRegisterPasswordFlag, loginPage, msg, user);
+		else if (registerPageFlag)
+			loginAndRegisterPage(registerPageFlag, loginOrRegisterPasswordFlag, registerPage, msg, user);
 
 		EndBatchDraw();
 
