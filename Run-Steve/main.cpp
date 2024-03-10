@@ -8,6 +8,9 @@
 #define WIDTH 540
 #define HEIGHT 920
 FILE* dataFile;
+int menuStatu = 0; //0为初始页面 1为登录页面 2为注册页面
+int logORegStatu = 0; //0为初始 1为输入账号状态 2为输入密码状态 3为输入完成状态
+int userStatu = 0; //0为未登录 1为登录成功 2为登录失败 3为注册成功
 
 const clock_t FPS = 1000 / 60;
 
@@ -30,10 +33,10 @@ struct newUser
 
 void menuPage();
 bool imageButtonDetect(imageLocate& locate, IMAGE& image, ExMessage& msg);
-void loginAndRegisterPage(int& loginOrRegisterPageFlag,bool &loginPasswordFlag, bool& loginFlag,IMAGE& page, ExMessage& msg, newUser& user);
+void loginAndRegisterPage(IMAGE& page, ExMessage& msg, newUser& user);
 newUser* readUserInfo();
 bool cheackUser(newUser* head, newUser target);
-void headText(int loginStatu, newUser& user);
+void headText(newUser& user);
 
 int main()
 {
@@ -128,6 +131,8 @@ void menuPage()
 		num++;
 		if (num == menuPageVideoNum)
 			num = 0;
+
+
 		if (imageButtonDetect(startLocate,start,msg))
 		{
 			putimage(startLocate.x, startLocate.y, &lStart_1, SRCAND);
@@ -142,7 +147,8 @@ void menuPage()
 		{
 			if (msg.message == WM_LBUTTONDOWN)
 			{
-				loginOrRegisterPageFlag = 1;
+				menuStatu = 1;
+				logORegStatu = 1;
 			}
 			else
 			{
@@ -161,7 +167,8 @@ void menuPage()
 		{
 			if (msg.message == WM_LBUTTONDOWN)
 			{
-				loginOrRegisterPageFlag = 2;
+				logORegStatu = 1;
+				menuStatu = 2;
 			}
 			else
 			{
@@ -176,25 +183,31 @@ void menuPage()
 		}
 		putimage(runSteveLovate.x, runSteveLovate.y, &runSteve_1, SRCAND);
 		putimage(runSteveLovate.x, runSteveLovate.y, &runSteve, SRCPAINT);
-		if (loginOrRegisterPageFlag==1)
+		if (menuStatu==1)
 		{
-			loginAndRegisterPage(loginOrRegisterPageFlag, loginOrRegisterPasswordFlag, loginFlag, loginPage, msg, user);
-			if (loginFlag)
+			
+			loginAndRegisterPage(loginPage, msg, user);
+			if (logORegStatu ==3)
 			{
 				if (cheackUser(head, user))
-					loginStatu = 1;
+					userStatu = 1;
 				else
-					loginStatu = 2;
+					userStatu = 2;
 			}
 		}
-		else if (loginOrRegisterPageFlag == 2)
+		else if (menuStatu == 2)
 		{
-			loginAndRegisterPage(loginOrRegisterPageFlag, loginOrRegisterPasswordFlag, loginFlag, registerPage, msg, user);
-			loginStatu = 3;
+			loginAndRegisterPage(registerPage, msg, user);
+			if (logORegStatu == 3)
+			{
+				userStatu = 3;
+			}
 		}
+		if (userStatu == 1 || userStatu == 3)
+			fclose(dataFile);
 			
 
-		headText(loginStatu, user);
+		headText(user);
 
 		EndBatchDraw();
 
@@ -214,7 +227,7 @@ bool imageButtonDetect(imageLocate& locate, IMAGE& image, ExMessage& msg)
 		return 0;
 }
 
-void loginAndRegisterPage(int& loginOrRegisterPageFlag,bool &loginPasswordFlag,bool &loginFlag,IMAGE& page,ExMessage& msg,newUser& user)
+void loginAndRegisterPage(IMAGE& page, ExMessage& msg, newUser& user)
 {
 
 	imageLocate loginPageLocate(44, 360);
@@ -223,7 +236,7 @@ void loginAndRegisterPage(int& loginOrRegisterPageFlag,bool &loginPasswordFlag,b
 	char ch[2];
 	ch[1] = '\0';
 
-	if (!loginPasswordFlag)
+	if (logORegStatu==1)
 	{
 		putimage(loginPageLocate.x, loginPageLocate.y, &page);
 		if (msg.message == WM_KEYDOWN)
@@ -237,7 +250,7 @@ void loginAndRegisterPage(int& loginOrRegisterPageFlag,bool &loginPasswordFlag,b
 			}
 			else if (ch[0] == 13)
 			{
-				loginPasswordFlag = 1;
+				logORegStatu = 2;
 			}
 			else
 			{
@@ -247,7 +260,7 @@ void loginAndRegisterPage(int& loginOrRegisterPageFlag,bool &loginPasswordFlag,b
 		}
 		outtextxy(userLocate.x, userLocate.y, user.name);
 	}
-	else if (loginPasswordFlag)
+	else if (logORegStatu==2)
 	{
 		putimage(loginPageLocate.x, loginPageLocate.y, &page);
 		if (msg.message == WM_KEYDOWN)
@@ -260,14 +273,14 @@ void loginAndRegisterPage(int& loginOrRegisterPageFlag,bool &loginPasswordFlag,b
 			}
 			else if (ch[0] == 13)
 			{
-				loginPasswordFlag = 0;
-				loginFlag = 1;
-				if (loginOrRegisterPageFlag == 2)  //当为注册时
+				logORegStatu = 3;
+				if (menuStatu == 2)  //当为注册时
 				{
 					fprintf(dataFile, "%s\n", user.name);
 					fprintf(dataFile, "%s\n", user.password);
+					userStatu = 3;
 				}
-				loginOrRegisterPageFlag = 0;
+				menuStatu = 0;
 			}
 			else
 			{
@@ -323,14 +336,16 @@ bool cheackUser(newUser* head, newUser target)
 	return 0;
 }
 
-void headText(int loginStatu,newUser& user)
+void headText(newUser& user)
 {
 	char s[50]="";
 	char s2[50] = "Login failed, Please try again";
 	char s3[50] = "";
-	switch (loginStatu)
+	char s4[50] = "Account not logged in";
+	switch (userStatu)
 	{
 	case 0:
+		outtextxy((WIDTH - textwidth(s4)) / 2, 200, s4);
 		break;
 	case 1:
 		sprintf_s(s, "Login successful,Welcome %s", user.name);
