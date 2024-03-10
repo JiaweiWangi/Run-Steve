@@ -12,7 +12,7 @@ int menuStatu = 0; //0为初始页面 1为登录页面 2为注册页面
 int logORegStatu = 0; //0为初始 1为输入账号状态 2为输入密码状态 3为输入完成状态
 int userStatu = 0; //0为未登录 1为登录成功 2为登录失败 3为注册成功
 
-const clock_t FPS = 1000 / 60;
+const clock_t FPS = 1000 / 120;
 
 struct imageLocate
 {
@@ -119,17 +119,19 @@ void menuPage()
 	settextcolor(BLACK);
 	setbkcolor(WHITE);
 
+	BeginBatchDraw();
+
 	while (true)
 	{
 		startTime = clock();
 		cleardevice();
 		peekmessage(&msg);
 
-		BeginBatchDraw();
+		
 
 		putimage(0, 0, &menuPageVideoImage[num]);
 		num++;
-		if (num == menuPageVideoNum)
+		if (num == menuPageVideoNum-1)
 			num = 0;
 
 
@@ -209,14 +211,17 @@ void menuPage()
 
 		headText(user);
 
-		EndBatchDraw();
+		
+		FlushBatchDraw();
 
 		freamTime = clock() - startTime;
-		//	printf("%d\n ", freamTime);
-		/*if (freamTime > 0)
-			Sleep(FPS - freamTime);*/
+		printf("%d\n ", freamTime);
+		if (freamTime > 0)
+			Sleep(FPS - freamTime);
 
 	}
+
+	EndBatchDraw();
 }
 
 bool imageButtonDetect(imageLocate& locate, IMAGE& image, ExMessage& msg)
@@ -297,7 +302,6 @@ void loginAndRegisterPage(IMAGE& page, ExMessage& msg, newUser& user)
 newUser* readUserInfo()
 {
 	newUser* head = NULL;
-	char buffer[20];
 	while (!feof(dataFile))
 	{
 		newUser* p = (newUser*)malloc(sizeof(newUser));
