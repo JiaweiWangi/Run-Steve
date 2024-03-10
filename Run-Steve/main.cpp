@@ -309,7 +309,7 @@ newUser* readUserInfo()
 		fgets(p->password, sizeof(p->password), dataFile);
 		p->name[strcspn(p->name,"\n")]='\0';
 		p->password[strcspn(p->password,"\n")]= '\0';
-		printf("%s\n%s\n", p->name, p->password);
+		//printf("%s\n%s\n", p->name, p->password);
 		p->next = NULL;
 		newUser* last = head;
 		if (last)
