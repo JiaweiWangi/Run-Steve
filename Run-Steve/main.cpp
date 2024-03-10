@@ -30,7 +30,7 @@ struct newUser
 
 void menuPage();
 bool imageButtonDetect(imageLocate& locate, IMAGE& image, ExMessage& msg);
-void loginAndRegisterPage(bool& loginPageFlag,bool &loginPasswordFlag, bool& loginFlag,IMAGE& page, ExMessage& msg, newUser& user);
+void loginAndRegisterPage(int& loginOrRegisterPageFlag,bool &loginPasswordFlag, bool& loginFlag,IMAGE& page, ExMessage& msg, newUser& user);
 newUser* readUserInfo();
 bool cheackUser(newUser* head, newUser target);
 void headText(int loginStatu, newUser& user);
@@ -40,7 +40,7 @@ int main()
 	initgraph(WIDTH, HEIGHT);
 	menuPage();
 
-
+	fclose(dataFile);
 	system("pause");
 }
 
@@ -104,10 +104,9 @@ void menuPage()
 
 	int num = 0;
 	ExMessage msg;
-	bool loginPageFlag = 0;
-	bool registerPageFlag = 0;
+	int loginOrRegisterPageFlag = 0; // 0为主界面 1为登录界面 2为注册界面
 	bool loginOrRegisterPasswordFlag = 0;
-	bool loginFlag = 0; 
+	bool loginFlag = 0; //1为结束输入
 	int loginStatu = 0; //0为初始状况，1为登录成功，2为登录失败，3为注册成功
 	int startTime;
 	int freamTime;
@@ -143,8 +142,7 @@ void menuPage()
 		{
 			if (msg.message == WM_LBUTTONDOWN)
 			{
-				loginPageFlag = 1;
-				registerPageFlag = 0;
+				loginOrRegisterPageFlag = 1;
 			}
 			else
 			{
@@ -163,8 +161,7 @@ void menuPage()
 		{
 			if (msg.message == WM_LBUTTONDOWN)
 			{
-				registerPageFlag = 1;
-				loginPageFlag = 0;
+				loginOrRegisterPageFlag = 2;
 			}
 			else
 			{
@@ -179,9 +176,9 @@ void menuPage()
 		}
 		putimage(runSteveLovate.x, runSteveLovate.y, &runSteve_1, SRCAND);
 		putimage(runSteveLovate.x, runSteveLovate.y, &runSteve, SRCPAINT);
-		if (loginPageFlag)
+		if (loginOrRegisterPageFlag==1)
 		{
-			loginAndRegisterPage(loginPageFlag, loginOrRegisterPasswordFlag, loginFlag, loginPage, msg, user);
+			loginAndRegisterPage(loginOrRegisterPageFlag, loginOrRegisterPasswordFlag, loginFlag, loginPage, msg, user);
 			if (loginFlag)
 			{
 				if (cheackUser(head, user))
@@ -190,15 +187,14 @@ void menuPage()
 					loginStatu = 2;
 			}
 		}
-		else if (registerPageFlag)
-			loginAndRegisterPage(registerPageFlag, loginOrRegisterPasswordFlag, loginFlag, registerPage, msg, user);
+		else if (loginOrRegisterPageFlag == 2)
+		{
+			loginAndRegisterPage(loginOrRegisterPageFlag, loginOrRegisterPasswordFlag, loginFlag, registerPage, msg, user);
+			loginStatu = 3;
+		}
+			
 
 		headText(loginStatu, user);
-
-
-		
-
-
 
 		EndBatchDraw();
 
@@ -206,6 +202,7 @@ void menuPage()
 		//	printf("%d\n ", freamTime);
 		/*if (freamTime > 0)
 			Sleep(FPS - freamTime);*/
+
 	}
 }
 
@@ -217,7 +214,7 @@ bool imageButtonDetect(imageLocate& locate, IMAGE& image, ExMessage& msg)
 		return 0;
 }
 
-void loginAndRegisterPage(bool& loginPageFlag,bool &loginPasswordFlag,bool &loginFlag,IMAGE& page,ExMessage& msg,newUser& user)
+void loginAndRegisterPage(int& loginOrRegisterPageFlag,bool &loginPasswordFlag,bool &loginFlag,IMAGE& page,ExMessage& msg,newUser& user)
 {
 
 	imageLocate loginPageLocate(44, 360);
@@ -264,11 +261,13 @@ void loginAndRegisterPage(bool& loginPageFlag,bool &loginPasswordFlag,bool &logi
 			else if (ch[0] == 13)
 			{
 				loginPasswordFlag = 0;
-				loginPageFlag = 0;
 				loginFlag = 1;
-				fprintf(dataFile, "%s\n", user.name);
-				fprintf(dataFile, "%s\n", user.password);
-				fclose(dataFile);
+				if (loginOrRegisterPageFlag == 2)  //当为注册时
+				{
+					fprintf(dataFile, "%s\n", user.name);
+					fprintf(dataFile, "%s\n", user.password);
+				}
+				loginOrRegisterPageFlag = 0;
 			}
 			else
 			{
@@ -328,6 +327,7 @@ void headText(int loginStatu,newUser& user)
 {
 	char s[50]="";
 	char s2[50] = "Login failed, Please try again";
+	char s3[50] = "";
 	switch (loginStatu)
 	{
 	case 0:
@@ -338,6 +338,10 @@ void headText(int loginStatu,newUser& user)
 		break;
 	case 2:
 		outtextxy((WIDTH - textwidth(s2)) / 2, 200, s2);
+		break;
+	case 3:
+		sprintf_s(s3, "Register successful,Welcome %s", user.name);
+		outtextxy((WIDTH - textwidth(s3)) / 2, 200, s3);
 		break;
 	default:
 		break;
