@@ -8,11 +8,18 @@
 #define WIDTH 540
 #define HEIGHT 920
 FILE* dataFile;
+ExMessage msg;
+const clock_t FPS = 1000 / 120;
+
 int menuStatu = 0; //0为初始页面 1为登录页面 2为注册页面
 int logORegStatu = 0; //0为初始 1为输入账号状态 2为输入密码状态 3为输入完成状态
 int userStatu = 0; //0为未登录 1为登录成功 2为登录失败 3为注册成功
 
-const clock_t FPS = 1000 / 120;
+
+
+int v0 = 20;
+int gravity = 5;
+
 
 struct imageLocate
 {
@@ -32,12 +39,15 @@ struct newUser
 
 
 void menuPage();
-bool imageButtonDetect(imageLocate& locate, IMAGE& image, ExMessage& msg);
-void loginAndRegisterPage(IMAGE& page, ExMessage& msg, newUser& user);
+bool imageButtonDetect(imageLocate& locate, IMAGE& image);
+void loginAndRegisterPage(IMAGE& page,newUser& user);
 newUser* readUserInfo();
 bool cheackUser(newUser* head, newUser target);
 void headText(newUser& user);
+
 void startPage();
+void steveMove(imageLocate& steveLocate);
+void steveJump(imageLocate& steveLocate);
 
 
 int main()
@@ -108,7 +118,7 @@ void menuPage()
 	loadimage(&registerPage, _T("../image/title/registerpage.png"));
 
 	int num = 0;
-	ExMessage msg;
+	
 	int loginOrRegisterPageFlag = 0; // 0为主界面 1为登录界面 2为注册界面
 	bool loginOrRegisterPasswordFlag = 0;
 	bool loginFlag = 0; //1为结束输入
@@ -137,7 +147,7 @@ void menuPage()
 			num = 0;
 
 
-		if (imageButtonDetect(startLocate,start,msg))
+		if (imageButtonDetect(startLocate,start))
 		{
 			putimage(startLocate.x, startLocate.y, &lStart_1, SRCAND);
 			putimage(startLocate.x, startLocate.y, &lStart, SRCPAINT);
@@ -147,7 +157,7 @@ void menuPage()
 			putimage(startLocate.x, startLocate.y, &start_1, SRCAND);
 			putimage(startLocate.x, startLocate.y, &start, SRCPAINT);
 		}
-		if (imageButtonDetect(loginLocate, login, msg))
+		if (imageButtonDetect(loginLocate, login))
 		{
 			if (msg.message == WM_LBUTTONDOWN)
 			{
@@ -167,7 +177,7 @@ void menuPage()
 			putimage(loginLocate.x, loginLocate.y, &login, SRCPAINT);
 			
 		}
-		if (imageButtonDetect(registerLocate, register1, msg))
+		if (imageButtonDetect(registerLocate, register1))
 		{
 			if (msg.message == WM_LBUTTONDOWN)
 			{
@@ -190,7 +200,7 @@ void menuPage()
 		if (menuStatu==1)
 		{
 			
-			loginAndRegisterPage(loginPage, msg, user);
+			loginAndRegisterPage(loginPage, user);
 			if (logORegStatu ==3)
 			{
 				if (cheackUser(head, user))
@@ -201,7 +211,7 @@ void menuPage()
 		}
 		else if (menuStatu == 2)
 		{
-			loginAndRegisterPage(registerPage, msg, user);
+			loginAndRegisterPage(registerPage, user);
 			if (logORegStatu == 3)
 			{
 				userStatu = 3;
@@ -226,7 +236,7 @@ void menuPage()
 	EndBatchDraw();
 }
 
-bool imageButtonDetect(imageLocate& locate, IMAGE& image, ExMessage& msg)
+bool imageButtonDetect(imageLocate& locate, IMAGE& image)
 {
 	if (msg.x >= locate.x && msg.x <= locate.x + image.getwidth() && msg.y >= locate.y && msg.y <= locate.y + image.getheight())
 		return 1;
@@ -234,7 +244,7 @@ bool imageButtonDetect(imageLocate& locate, IMAGE& image, ExMessage& msg)
 		return 0;
 }
 
-void loginAndRegisterPage(IMAGE& page, ExMessage& msg, newUser& user)
+void loginAndRegisterPage(IMAGE& page,  newUser& user)
 {
 
 	imageLocate loginPageLocate(44, 360);
@@ -295,6 +305,7 @@ void loginAndRegisterPage(IMAGE& page, ExMessage& msg, newUser& user)
 					strcat_s(user.password, ch);
 			}
 		}
+		
 		outtextxy(userLocate.x, userLocate.y, user.name);
 		outtextxy(passwordLocate.x, passwordLocate.y, user.password);
 	}
@@ -344,6 +355,8 @@ bool cheackUser(newUser* head, newUser target)
 
 void headText(newUser& user)
 {
+	setbkmode(TRANSPARENT);
+	
 	char s[50]="";
 	char s2[50] = "Login failed, Please try again";
 	char s3[50] = "";
@@ -371,38 +384,101 @@ void headText(newUser& user)
 
 void startPage()
 {
+	int i = 0;
+	int moveCnt = 0;
 	const int steveNum = 14;
 	IMAGE steve[steveNum];
 	IMAGE steve1[steveNum];
 	char file_name[128];
 	char file_name1[128];
 
-	for (int i = 0; i < steveNum; i++)
-	{
-		sprintf_s(file_name, "../image/steve/steve%02d.jpg", i);
-		sprintf_s(file_name1, "../image/steve1/steve101%02d.jpg", i);
-		//printf(file_name);
-		loadimage(&steve[i], file_name);
-		loadimage(&steve1[i], file_name1);
+	
+	imageLocate steveLocate(0, 0);
 
-	}
-	int i = 0;
+
+		for (i = 0; i < steveNum; i++)
+		{
+			sprintf_s(file_name, "../image/steve/steve%02d.jpg", i);
+			sprintf_s(file_name1, "../image/steve1/steve101%02d.jpg", i);
+			//printf(file_name);
+			loadimage(&steve[i], file_name);
+			loadimage(&steve1[i], file_name1);
+
+		}
+	i = 0;
+
+
+
+
 
 	BeginBatchDraw();
 
 	while (true)
 	{
+		peekmessage(&msg);
+		
+		steveMove(steveLocate);
+		steveJump(steveLocate);
 
 		cleardevice();
-		putimage(0, 0, &steve1[i], SRCAND);
-		putimage(0,0, &steve[i], SRCPAINT);
+		putimage(steveLocate.x, steveLocate.y, &steve1[i], SRCAND);
+		putimage(steveLocate.x,steveLocate.y, &steve[i], SRCPAINT);
 		i++;
 		if (i == steveNum)
 			i = 0;
-
 		FlushBatchDraw();
-		Sleep(10);
+		Sleep(16);
 		
 	}
 	EndBatchDraw();
+}
+
+void steveMove(imageLocate& steveLocate)
+{
+	static int  steveMoveFlag = 0; //-1为向左移动 1为向右移动 0为不动
+	int steveSpeed = 10; //速度应可以整除150
+	const int steveLeft = -150;
+	const int steveRight = 150;
+	if (msg.message == WM_KEYDOWN)
+	{
+		if (msg.vkcode == 0x25)
+		{
+			steveMoveFlag = -1;
+		}
+		if (msg.vkcode == 0x27)
+		{
+			steveMoveFlag = 1;
+		}
+	}
+
+	if (steveMoveFlag == -1 && steveLocate.x > steveLeft)
+		steveLocate.x -= steveSpeed;
+	else if (steveMoveFlag == 1 && steveLocate.x < steveRight)
+		steveLocate.x += steveSpeed;
+	if (steveLocate.x == steveLeft || steveLocate.x == steveRight || steveLocate.x == 0)
+		steveMoveFlag = 0;
+}
+
+void steveJump(imageLocate& steveLocate)
+{
+	static int v0 = 40;
+	static int gravity = 5;
+	static int jumpFlag = 0; // 1 jumping;
+	if (msg.message == WM_KEYDOWN)
+	{
+		if (msg.vkcode == 0x26)
+			jumpFlag = 1;
+	}
+	if (jumpFlag == 1)
+	{
+		steveLocate.y -= v0;
+		v0 -= gravity;
+	}
+	
+	if (steveLocate.y == 0)
+	{
+		v0 = 40;
+		jumpFlag = 0;
+	}
+	
 }
