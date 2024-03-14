@@ -37,12 +37,14 @@ void loginAndRegisterPage(IMAGE& page, ExMessage& msg, newUser& user);
 newUser* readUserInfo();
 bool cheackUser(newUser* head, newUser target);
 void headText(newUser& user);
+void startPage();
+
 
 int main()
 {
 	initgraph(WIDTH, HEIGHT);
-	menuPage();
-
+	//menuPage();
+	startPage();
 	fclose(dataFile);
 	system("pause");
 }
@@ -365,4 +367,42 @@ void headText(newUser& user)
 	default:
 		break;
 	}
+}
+
+void startPage()
+{
+	const int steveNum = 14;
+	IMAGE steve[steveNum];
+	IMAGE steve1[steveNum];
+	char file_name[128];
+	char file_name1[128];
+
+	for (int i = 0; i < steveNum; i++)
+	{
+		sprintf_s(file_name, "../image/steve/steve%02d.jpg", i);
+		sprintf_s(file_name1, "../image/steve1/steve101%02d.jpg", i);
+		//printf(file_name);
+		loadimage(&steve[i], file_name);
+		loadimage(&steve1[i], file_name1);
+
+	}
+	int i = 0;
+
+	BeginBatchDraw();
+
+	while (true)
+	{
+
+		cleardevice();
+		putimage(0, 0, &steve1[i], SRCAND);
+		putimage(0,0, &steve[i], SRCPAINT);
+		i++;
+		if (i == steveNum)
+			i = 0;
+
+		FlushBatchDraw();
+		Sleep(10);
+		
+	}
+	EndBatchDraw();
 }
