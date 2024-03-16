@@ -72,7 +72,7 @@ item* goldUpdate(item* barrierGold, IMAGE gold[2]);
 int main()
 {
 	initgraph(WIDTH, HEIGHT);
-	//menuPage();
+	menuPage();
 	startPage();
 	fclose(dataFile);
 	system("pause");
@@ -168,6 +168,8 @@ void menuPage()
 
 		if (imageButtonDetect(startLocate,start))
 		{
+			if (msg.message == WM_LBUTTONDOWN && (userStatu == 1||userStatu==3))
+				break;
 			putimage(startLocate.x, startLocate.y, &lStart_1, SRCAND);
 			putimage(startLocate.x, startLocate.y, &lStart, SRCPAINT);
 		}
@@ -405,9 +407,14 @@ void startPage()
 {
 	int i = 0;
 	int j = 0;
+	int m = 0;
+	int n = 0;
 	int moveCnt = 0;
 	const int steveNum = 14;
 	const int railNum = 4;
+	const int backgroundNum = 17;
+	const int skyNum = 24;
+
 	char file_name[128];
 	char file_name1[128];
 
@@ -418,6 +425,9 @@ void startPage()
 	IMAGE steve1[steveNum];
 	IMAGE rail[railNum];
 	IMAGE rail1[railNum];
+	IMAGE background[backgroundNum];
+	IMAGE sky[skyNum];
+
 
 	imageLocate steveLocate(0, 0);
 	imageLocate railLocate(-90, -200);
@@ -441,14 +451,25 @@ void startPage()
 		loadimage(&rail[j], file_name,720,1280,true);
 		loadimage(&rail1[j], file_name1, 720, 1280, true);
 	}
-
+	for (m = 0; m < backgroundNum; m++)
+	{
+		sprintf_s(file_name, "../image/background/background%02d.jpg", m);
+		loadimage(&background[m], file_name);
+	}
+	for (n = 0; n < skyNum; n++)
+	{
+		sprintf_s(file_name, "../image/sky/sky%02d.jpg", n);
+		loadimage(&sky[n], file_name);
+	}
 	i = 0;	
 	j = 0;
-
+	m = 0;
+	n = 1100;
 	item* barrierGold = NULL;
 	srand((unsigned int)time(0));
 	//MyClass* obj = new MyClass(args);
 
+	setbkmode(TRANSPARENT);
 	settextcolor(WHITE);
 
 	BeginBatchDraw();
@@ -470,7 +491,18 @@ void startPage()
 			barrierGold = createItem(barrierGold, gold[0], rand_nuber);
 		}
 			
+		putimage(0, -50, &sky[n/100]);
+		n++;
+		if (n == skyNum*100)
+			n = 0;
+
+		putimage(0, 225, &background[m]);
+		m++;
+		if (m == backgroundNum)
+			m = 0;
+
 		
+
 		putimage(railLocate.x, railLocate.y,&rail1[j], SRCAND);
 		putimage(railLocate.x, railLocate.y,&rail[j], SRCPAINT);
 		j++;
@@ -492,7 +524,7 @@ void startPage()
 	
 
 		FlushBatchDraw();
-		//Sleep(16);
+		Sleep(10);
 		
 	}
 	EndBatchDraw();
@@ -589,7 +621,6 @@ item* createItem(item* head,IMAGE &gold,int modle)
 	return head;
 }
 
-
 item* goldUpdate(item* barrierGold, IMAGE gold[2])
 {
 	if (barrierGold!=NULL && barrierGold->y > HEIGHT)
@@ -656,13 +687,4 @@ item* goldUpdate(item* barrierGold, IMAGE gold[2])
 
 	}
 	return barrierGold;
-}
-
-void goldUpdate(item& barrierGold)
-{
-	static double goldSpeed = 20;
-	static double a = 0.2; //º”ÀŸ∂»
-
-	barrierGold.y += goldSpeed;
-	goldSpeed -= a;
 }
