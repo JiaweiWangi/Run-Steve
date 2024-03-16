@@ -4,28 +4,45 @@
 #include<conio.h>
 #include<cstring>
 #include<cstdlib>
+#include<time.h>
 
 #define WIDTH 540
 #define HEIGHT 920
 FILE* dataFile;
 ExMessage msg;
 const clock_t FPS = 1000 / 120;
+const int award = 100;
 
 int menuStatu = 0; //0为初始页面 1为登录页面 2为注册页面
 int logORegStatu = 0; //0为初始 1为输入账号状态 2为输入密码状态 3为输入完成状态
 int userStatu = 0; //0为未登录 1为登录成功 2为登录失败 3为注册成功
 
+int goldCnt = 0;
+int steveModle = 2;
+int jumpFlag = 0; // 1 jumping;
 
 
-int v0 = 20;
-int gravity = 5;
-
+int points = 0;
 
 struct imageLocate
 {
 	int x;
 	int y;
 	imageLocate(int x, int y) : x(x), y(y) {}
+};
+
+struct item
+{
+	int x;
+	int y;
+	int centerX;
+	int centerY;
+	int speed;
+	int modle; //为出现在第几列 1 2 3
+	IMAGE img;
+	item* next;
+	item(IMAGE img) :img(img), x((WIDTH - img.getwidth()) / 2), y((HEIGHT - img.getheight()) / 2), centerX((x + img.getwidth()) / 2), centerY((y + img.getheight()) / 2),speed(0),next(NULL),modle(0){}
+
 };
 
 struct newUser
@@ -48,6 +65,8 @@ void headText(newUser& user);
 void startPage();
 void steveMove(imageLocate& steveLocate);
 void steveJump(imageLocate& steveLocate);
+item* createItem(item*,IMAGE&,int);
+item* goldUpdate(item* barrierGold, IMAGE gold[2]);
 
 
 int main()
@@ -385,49 +404,95 @@ void headText(newUser& user)
 void startPage()
 {
 	int i = 0;
+	int j = 0;
 	int moveCnt = 0;
 	const int steveNum = 14;
-	IMAGE steve[steveNum];
-	IMAGE steve1[steveNum];
+	const int railNum = 4;
 	char file_name[128];
 	char file_name1[128];
 
-	
+	char Points[128];
+
+	IMAGE gold[2];
+	IMAGE steve[steveNum];
+	IMAGE steve1[steveNum];
+	IMAGE rail[railNum];
+	IMAGE rail1[railNum];
+
 	imageLocate steveLocate(0, 0);
+	imageLocate railLocate(-90, -200);
 
+	loadimage(&gold[0], "../image/star/gold1.png");
+	loadimage(&gold[1], "../image/star/gold.png");
 
-		for (i = 0; i < steveNum; i++)
-		{
-			sprintf_s(file_name, "../image/steve/steve%02d.jpg", i);
-			sprintf_s(file_name1, "../image/steve1/steve101%02d.jpg", i);
-			//printf(file_name);
-			loadimage(&steve[i], file_name);
-			loadimage(&steve1[i], file_name1);
+	for (i = 0; i < steveNum; i++)
+	{
+		sprintf_s(file_name, "../image/steve/steve%02d.jpg", i);
+		sprintf_s(file_name1, "../image/steve1/steve101%02d.jpg", i);
+		//printf(file_name);
+		loadimage(&steve[i], file_name);
+		loadimage(&steve1[i], file_name1);
 
-		}
-	i = 0;
+	}
+	for (j = 0; j < railNum; j++)
+	{
+		sprintf_s(file_name, "../image/rail/rail%d.jpg", j);
+		sprintf_s(file_name1, "../image/rail1/rail1%d.jpg", j);
+		loadimage(&rail[j], file_name,720,1280,true);
+		loadimage(&rail1[j], file_name1, 720, 1280, true);
+	}
 
+	i = 0;	
+	j = 0;
 
+	item* barrierGold = NULL;
+	srand((unsigned int)time(0));
+	//MyClass* obj = new MyClass(args);
 
-
+	settextcolor(WHITE);
 
 	BeginBatchDraw();
 
 	while (true)
 	{
+		cleardevice();
 		peekmessage(&msg);
-		
+
 		steveMove(steveLocate);
 		steveJump(steveLocate);
+		
+		
+	
+		int rand_nuber = rand() % 100 + 1;
+		if (goldCnt <= 5 && rand_nuber < 10)
+		{
+			rand_nuber = rand_nuber % 3 + 1;
+			barrierGold = createItem(barrierGold, gold[0], rand_nuber);
+		}
+			
+		
+		putimage(railLocate.x, railLocate.y,&rail1[j], SRCAND);
+		putimage(railLocate.x, railLocate.y,&rail[j], SRCPAINT);
+		j++;
+		if (j == railNum)
+			j = 0;
 
-		cleardevice();
+		barrierGold = goldUpdate(barrierGold, gold);
+
 		putimage(steveLocate.x, steveLocate.y, &steve1[i], SRCAND);
 		putimage(steveLocate.x,steveLocate.y, &steve[i], SRCPAINT);
 		i++;
 		if (i == steveNum)
 			i = 0;
+		
+		sprintf_s(Points, "Points:%04d", points);
+		settextstyle(35, 0, _T("Consolas"));
+		outtextxy(300, 50, _T(Points));
+		points++;
+	
+
 		FlushBatchDraw();
-		Sleep(16);
+		//Sleep(16);
 		
 	}
 	EndBatchDraw();
@@ -437,8 +502,8 @@ void steveMove(imageLocate& steveLocate)
 {
 	static int  steveMoveFlag = 0; //-1为向左移动 1为向右移动 0为不动
 	int steveSpeed = 10; //速度应可以整除150
-	const int steveLeft = -150;
-	const int steveRight = 150;
+	const int steveLeft = -180;
+	const int steveRight = 180;
 	if (msg.message == WM_KEYDOWN)
 	{
 		if (msg.vkcode == 0x25)
@@ -456,14 +521,23 @@ void steveMove(imageLocate& steveLocate)
 	else if (steveMoveFlag == 1 && steveLocate.x < steveRight)
 		steveLocate.x += steveSpeed;
 	if (steveLocate.x == steveLeft || steveLocate.x == steveRight || steveLocate.x == 0)
+	{
 		steveMoveFlag = 0;
+		if (steveLocate.x == steveLeft)
+			steveModle = 1;
+		if (steveLocate.x == steveRight)
+			steveModle = 3;
+		if (steveLocate.x == 0)
+			steveModle = 2;
+	}
+		
 }
 
 void steveJump(imageLocate& steveLocate)
 {
 	static int v0 = 40;
 	static int gravity = 5;
-	static int jumpFlag = 0; // 1 jumping;
+
 	if (msg.message == WM_KEYDOWN)
 	{
 		if (msg.vkcode == 0x26)
@@ -481,4 +555,114 @@ void steveJump(imageLocate& steveLocate)
 		jumpFlag = 0;
 	}
 	
+}
+
+item* createItem(item* head,IMAGE &gold,int modle)
+{
+	goldCnt++;
+	item* p = new item(gold);
+	p->next = NULL;
+	p->speed = 10;
+	p->y = 200;
+	p->modle = modle;
+
+	if (modle == 1)
+		p->x = 170;
+	else if (modle == 2)
+		p->x = 250;
+	else if (modle == 3)
+		p->x = 340;
+
+	item* last = head;
+	if (last)
+	{
+		while (last->next)
+		{
+			last = last->next;
+		}
+		last->next = p;
+	}
+	else
+	{
+		head = p;
+	}
+	return head;
+}
+
+
+item* goldUpdate(item* barrierGold, IMAGE gold[2])
+{
+	if (barrierGold!=NULL && barrierGold->y > HEIGHT)
+	{
+		item* toDelete = barrierGold;
+		barrierGold = barrierGold->next;
+		free(toDelete);
+		goldCnt--;
+	}
+
+	if (barrierGold != NULL && barrierGold->y >= 750 && barrierGold->y <= 800 && barrierGold->modle == steveModle&&jumpFlag==0)
+	{
+		item* toDelete = barrierGold;
+		barrierGold = barrierGold->next;
+		free(toDelete);
+		goldCnt--;
+		points += award;
+		
+	}
+
+	item* head = barrierGold;
+	int size;
+	while (head)
+	{
+		
+		if (head->next != NULL && head->next->modle == steveModle&&jumpFlag == 0)
+		{
+			if (head->next->y >= 750 && head->next->y <= 800)
+			{
+				item* toDelete = head->next;
+				head->next = head->next->next;
+				free(toDelete);
+				goldCnt--;
+				points += award;
+			}
+		}
+
+
+		head->y += head->speed;
+		
+		if (head->modle == 1)
+		{
+			head->x = (int)(-0.224 * head->y +220);
+		}
+		else if (head->modle == 2)
+		{
+			head->x = (int)(-0.05 * head->y+270);
+		}
+		else if (head->modle == 3)
+		{
+			head->x = (int)(0.13*head->y+320);
+		}
+
+		size = (int)((head->y * 0.1));
+
+		
+		loadimage(&gold[0], "../image/star/gold1.png", size, size, true);
+		loadimage(&gold[1], "../image/star/gold.png", size, size, true);
+
+		putimage(head->x, head->y, &gold[0], SRCAND);
+		putimage(head->x, head->y, &gold[1], SRCPAINT);
+
+		head = head->next;
+
+	}
+	return barrierGold;
+}
+
+void goldUpdate(item& barrierGold)
+{
+	static double goldSpeed = 20;
+	static double a = 0.2; //加速度
+
+	barrierGold.y += goldSpeed;
+	goldSpeed -= a;
 }
