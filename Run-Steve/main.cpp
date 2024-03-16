@@ -10,8 +10,11 @@
 #define HEIGHT 920
 FILE* dataFile;
 ExMessage msg;
-const clock_t FPS = 1000 / 120;
+const clock_t FPS = 1000 / 60;
 const int award = 100;
+
+int startTime;
+int freamTime;
 
 int menuStatu = 0; //0为初始页面 1为登录页面 2为注册页面
 int logORegStatu = 0; //0为初始 1为输入账号状态 2为输入密码状态 3为输入完成状态
@@ -142,8 +145,7 @@ void menuPage()
 	bool loginOrRegisterPasswordFlag = 0;
 	bool loginFlag = 0; //1为结束输入
 	int loginStatu = 0; //0为初始状况，1为登录成功，2为登录失败，3为注册成功
-	int startTime;
-	int freamTime;
+
 	newUser user;
 	
 	settextstyle(35, 0, _T("Consolas"));
@@ -248,7 +250,6 @@ void menuPage()
 		FlushBatchDraw();
 
 		freamTime = clock() - startTime;
-		printf("%d\n ", freamTime);
 		if (freamTime > 0)
 			Sleep(FPS - freamTime);
 
@@ -296,6 +297,7 @@ void loginAndRegisterPage(IMAGE& page,  newUser& user)
 					strcat_s(user.name, ch);
 			}
 		}
+		settextstyle(35, 0, _T("Consolas"));
 		outtextxy(userLocate.x, userLocate.y, user.name);
 	}
 	else if (logORegStatu==2)
@@ -326,7 +328,7 @@ void loginAndRegisterPage(IMAGE& page,  newUser& user)
 					strcat_s(user.password, ch);
 			}
 		}
-		
+		settextstyle(35, 0, _T("Consolas"));
 		outtextxy(userLocate.x, userLocate.y, user.name);
 		outtextxy(passwordLocate.x, passwordLocate.y, user.password);
 	}
@@ -377,7 +379,7 @@ bool cheackUser(newUser* head, newUser target)
 void headText(newUser& user)
 {
 	setbkmode(TRANSPARENT);
-	
+	settextstyle(25, 0, _T("Consolas"));
 	char s[50]="";
 	char s2[50] = "Login failed, Please try again";
 	char s3[50] = "";
@@ -405,6 +407,9 @@ void headText(newUser& user)
 
 void startPage()
 {
+
+
+
 	int i = 0;
 	int j = 0;
 	int m = 0;
@@ -476,6 +481,8 @@ void startPage()
 
 	while (true)
 	{
+		startTime = clock();
+
 		cleardevice();
 		peekmessage(&msg);
 
@@ -522,9 +529,13 @@ void startPage()
 		outtextxy(300, 50, _T(Points));
 		points++;
 	
-
 		FlushBatchDraw();
-		Sleep(10);
+
+		freamTime = clock() - startTime;
+		if (FPS - freamTime > 0)
+			Sleep(FPS - freamTime);
+
+			
 		
 	}
 	EndBatchDraw();
