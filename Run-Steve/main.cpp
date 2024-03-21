@@ -297,7 +297,22 @@ void loginAndRegisterPage(IMAGE& page,  newUser& user)
 					strcat_s(user.name, ch);
 			}
 		}
-		settextstyle(35, 0, _T("Consolas"));
+		settextstyle(35, 15, _T("Consolas"));
+		static int n = 0;
+		if (n < 10)
+		{
+			n++;
+			outtextxy(userLocate.x+15*strlen(user.name)-5, userLocate.y, "|");
+		}
+		else if(n>=10&&n<20)
+		{
+			n++;
+			
+		}
+		else
+		{
+			n = 0;
+		}
 		outtextxy(userLocate.x, userLocate.y, user.name);
 	}
 	else if (logORegStatu==2)
@@ -328,7 +343,22 @@ void loginAndRegisterPage(IMAGE& page,  newUser& user)
 					strcat_s(user.password, ch);
 			}
 		}
-		settextstyle(35, 0, _T("Consolas"));
+		settextstyle(35, 15, _T("Consolas"));
+		static int n = 0;
+		if (n < 10)
+		{
+			n++;
+			outtextxy(passwordLocate.x + 15 * strlen(user.password) - 5, passwordLocate.y, "|");
+		}
+		else if (n >= 10 && n < 20)
+		{
+			n++;
+
+		}
+		else
+		{
+			n = 0;
+		}
 		outtextxy(userLocate.x, userLocate.y, user.name);
 		outtextxy(passwordLocate.x, passwordLocate.y, user.password);
 	}
