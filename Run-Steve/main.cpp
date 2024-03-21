@@ -20,7 +20,7 @@ int menuStatu = 0; //0为初始页面 1为登录页面 2为注册页面
 int logORegStatu = 0; //0为初始 1为输入账号状态 2为输入密码状态 3为输入完成状态
 int userStatu = 0; //0为未登录 1为登录成功 2为登录失败 3为注册成功
 
-int goldCnt = 0;
+
 int steveModle = 2;
 int jumpFlag = 0; // 1 jumping;
 
@@ -68,8 +68,8 @@ void headText(newUser& user);
 void startPage();
 void steveMove(imageLocate& steveLocate);
 void steveJump(imageLocate& steveLocate);
-item* createItem(item*,IMAGE&,int);
-item* goldUpdate(item* barrierGold, IMAGE gold[2]);
+item* createItem(item*,IMAGE&,int,int&);
+item* goldUpdate(item* barrierGold, IMAGE gold[2],int& cnt);
 
 
 int main()
@@ -438,8 +438,7 @@ void headText(newUser& user)
 void startPage()
 {
 
-
-
+	int goldCnt = 0;
 	int i = 0;
 	int j = 0;
 	int m = 0;
@@ -525,7 +524,7 @@ void startPage()
 		if (goldCnt <= 5 && rand_nuber < 10)
 		{
 			rand_nuber = rand_nuber % 3 + 1;
-			barrierGold = createItem(barrierGold, gold[0], rand_nuber);
+			barrierGold = createItem(barrierGold, gold[0], rand_nuber , goldCnt);
 		}
 			
 		putimage(0, -50, &sky[n/100]);
@@ -546,7 +545,7 @@ void startPage()
 		if (j == railNum)
 			j = 0;
 
-		barrierGold = goldUpdate(barrierGold, gold);
+		barrierGold = goldUpdate(barrierGold, gold,goldCnt);
 
 		putimage(steveLocate.x, steveLocate.y, &steve1[i], SRCAND);
 		putimage(steveLocate.x,steveLocate.y, &steve[i], SRCPAINT);
@@ -630,9 +629,9 @@ void steveJump(imageLocate& steveLocate)
 	
 }
 
-item* createItem(item* head,IMAGE &gold,int modle)
+item* createItem(item* head,IMAGE &gold,int modle,int& cnt)
 {
-	goldCnt++;
+	cnt++;
 	item* p = new item(gold);
 	p->next = NULL;
 	p->speed = 10;
@@ -662,14 +661,14 @@ item* createItem(item* head,IMAGE &gold,int modle)
 	return head;
 }
 
-item* goldUpdate(item* barrierGold, IMAGE gold[2])
+item* goldUpdate(item* barrierGold, IMAGE gold[2],int& cnt)
 {
 	if (barrierGold!=NULL && barrierGold->y > HEIGHT)
 	{
 		item* toDelete = barrierGold;
 		barrierGold = barrierGold->next;
 		free(toDelete);
-		goldCnt--;
+		cnt--;
 	}
 
 	if (barrierGold != NULL && barrierGold->y >= 750 && barrierGold->y <= 800 && barrierGold->modle == steveModle&&jumpFlag==0)
@@ -677,7 +676,7 @@ item* goldUpdate(item* barrierGold, IMAGE gold[2])
 		item* toDelete = barrierGold;
 		barrierGold = barrierGold->next;
 		free(toDelete);
-		goldCnt--;
+		cnt--;
 		points += award;
 		
 	}
@@ -694,7 +693,7 @@ item* goldUpdate(item* barrierGold, IMAGE gold[2])
 				item* toDelete = head->next;
 				head->next = head->next->next;
 				free(toDelete);
-				goldCnt--;
+				cnt--;
 				points += award;
 			}
 		}
