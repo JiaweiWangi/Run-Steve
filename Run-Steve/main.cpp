@@ -75,7 +75,7 @@ item* goldUpdate(item* barrierGold, IMAGE gold[2],int& cnt);
 int main()
 {
 	initgraph(WIDTH, HEIGHT);
-	menuPage();
+	//menuPage();
 	startPage();
 	fclose(dataFile);
 	system("pause");
