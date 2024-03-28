@@ -19,7 +19,7 @@ int freamTime;
 int menuStatu = 0; //0为初始页面 1为登录页面 2为注册页面
 int logORegStatu = 0; //0为初始 1为输入账号状态 2为输入密码状态 3为输入完成状态
 int userStatu = 0; //0为未登录 1为登录成功 2为登录失败 3为注册成功
-
+int heartCnt = 10;
 
 int steveModle = 2;
 int jumpFlag = 0; // 1 jumping;
@@ -64,12 +64,12 @@ void loginAndRegisterPage(IMAGE& page,newUser& user);
 newUser* readUserInfo();
 bool cheackUser(newUser* head, newUser target);
 void headText(newUser& user);
-
 void startPage();
 void steveMove(imageLocate& steveLocate);
 void steveJump(imageLocate& steveLocate);
 item* createItem(item*,IMAGE&,int,int&);
-item* goldUpdate(item* barrierGold, IMAGE gold[2],int& cnt);
+item* itemUpdate(item* barrierGold, IMAGE gold[2],int& cnt,int category);
+void heartUpdate(IMAGE heart[2], int heartCnt);
 
 
 int main()
@@ -439,11 +439,11 @@ void startPage()
 {
 
 	int goldCnt = 0;
+	int arrowCnt = 0;
 	int i = 0;
 	int j = 0;
 	int m = 0;
 	int n = 0;
-	int moveCnt = 0;
 	const int steveNum = 14;
 	const int railNum = 4;
 	const int backgroundNum = 17;
@@ -453,21 +453,26 @@ void startPage()
 	char file_name1[128];
 
 	char Points[128];
-
 	IMAGE gold[2];
+	IMAGE arrow[2];
 	IMAGE steve[steveNum];
 	IMAGE steve1[steveNum];
 	IMAGE rail[railNum];
 	IMAGE rail1[railNum];
 	IMAGE background[backgroundNum];
 	IMAGE sky[skyNum];
-
+	IMAGE heart[2];
 
 	imageLocate steveLocate(0, 0);
 	imageLocate railLocate(-90, -200);
 
 	loadimage(&gold[0], "../image/star/gold1.png");
 	loadimage(&gold[1], "../image/star/gold.png");
+	loadimage(&arrow[0], "../image/arrow/arrow1.png");
+	loadimage(&arrow[1], "../image/arrow/arrow.png");
+	loadimage(&heart[0], "../image/heart/heart.png", 50, 50, true);
+	loadimage(&heart[1], "../image/heart/heart1.png", 50, 50, true);
+	
 
 	for (i = 0; i < steveNum; i++)
 	{
@@ -500,6 +505,7 @@ void startPage()
 	m = 0;
 	n = 1100;
 	item* barrierGold = NULL;
+	item* barrierArrow = NULL;
 	srand((unsigned int)time(0));
 	//MyClass* obj = new MyClass(args);
 
@@ -526,6 +532,11 @@ void startPage()
 			rand_nuber = rand_nuber % 3 + 1;
 			barrierGold = createItem(barrierGold, gold[0], rand_nuber , goldCnt);
 		}
+		else if (arrowCnt <= 2&&rand_nuber<15)
+		{
+			rand_nuber = rand_nuber % 3 + 1;
+			barrierArrow = createItem(barrierArrow, arrow[0], rand_nuber, arrowCnt);
+		}
 			
 		putimage(0, -50, &sky[n/100]);
 		n++;
@@ -545,7 +556,8 @@ void startPage()
 		if (j == railNum)
 			j = 0;
 
-		barrierGold = goldUpdate(barrierGold, gold,goldCnt);
+		barrierGold = itemUpdate(barrierGold, gold,goldCnt,1);
+		barrierArrow = itemUpdate(barrierArrow, arrow, arrowCnt,2);
 
 		putimage(steveLocate.x, steveLocate.y, &steve1[i], SRCAND);
 		putimage(steveLocate.x,steveLocate.y, &steve[i], SRCPAINT);
@@ -558,6 +570,8 @@ void startPage()
 		outtextxy(300, 50, _T(Points));
 		points++;
 	
+		heartUpdate(heart, heartCnt);
+
 		FlushBatchDraw();
 
 		freamTime = clock() - startTime;
@@ -661,27 +675,32 @@ item* createItem(item* head,IMAGE &gold,int modle,int& cnt)
 	return head;
 }
 
-item* goldUpdate(item* barrierGold, IMAGE gold[2],int& cnt)
+item* itemUpdate(item* barrierItem, IMAGE image[2],int& cnt,int category) //category 1为金币 2为箭头
 {
-	if (barrierGold!=NULL && barrierGold->y > HEIGHT)
+	if (barrierItem!=NULL && barrierItem->y > HEIGHT)
 	{
-		item* toDelete = barrierGold;
-		barrierGold = barrierGold->next;
+		item* toDelete = barrierItem;
+		barrierItem = barrierItem->next;
 		free(toDelete);
 		cnt--;
+			
 	}
 
-	if (barrierGold != NULL && barrierGold->y >= 750 && barrierGold->y <= 800 && barrierGold->modle == steveModle&&jumpFlag==0)
+	if (barrierItem != NULL && barrierItem->y >= 750 && barrierItem->y <= 800 && barrierItem->modle == steveModle&&jumpFlag==0)
 	{
-		item* toDelete = barrierGold;
-		barrierGold = barrierGold->next;
+		item* toDelete = barrierItem;
+		barrierItem = barrierItem->next;
 		free(toDelete);
 		cnt--;
 		points += award;
-		
+		if (category == 2)
+		{
+			heartCnt--;
+		}
+			
 	}
 
-	item* head = barrierGold;
+	item* head = barrierItem;
 	int size;
 	while (head)
 	{
@@ -695,6 +714,10 @@ item* goldUpdate(item* barrierGold, IMAGE gold[2],int& cnt)
 				free(toDelete);
 				cnt--;
 				points += award;
+				if (category == 2)
+				{
+					heartCnt--;
+				}
 			}
 		}
 
@@ -716,15 +739,33 @@ item* goldUpdate(item* barrierGold, IMAGE gold[2],int& cnt)
 
 		size = (int)((head->y * 0.1));
 
-		
-		loadimage(&gold[0], "../image/star/gold1.png", size, size, true);
-		loadimage(&gold[1], "../image/star/gold.png", size, size, true);
+		if (category == 1)
+		{
+			loadimage(&image[0], "../image/star/gold1.png", size, size, true);
+			loadimage(&image[1], "../image/star/gold.png", size, size, true);
+		}
+		else if (category == 2)
+		{
+			loadimage(&image[0], "../image/arrow/arrow1.png", size, size, true);
+			loadimage(&image[1], "../image/arrow/arrow.png", size, size, true);
+		}
 
-		putimage(head->x, head->y, &gold[0], SRCAND);
-		putimage(head->x, head->y, &gold[1], SRCPAINT);
+		putimage(head->x, head->y, &image[0], SRCAND);
+		putimage(head->x, head->y, &image[1], SRCPAINT);
 
 		head = head->next;
 
 	}
-	return barrierGold;
+	return barrierItem;
+}
+
+void heartUpdate(IMAGE heart[2], int heartCnt)
+{
+	imageLocate heartLocate(0, 0);
+	for (int i = 0; i < heartCnt;i++)
+	{
+		putimage(heartLocate.x, heartLocate.y, &heart[1], SRCAND);
+		putimage(heartLocate.x, heartLocate.y, &heart[0], SRCPAINT);
+		heartLocate.x += 50;
+	}
 }
