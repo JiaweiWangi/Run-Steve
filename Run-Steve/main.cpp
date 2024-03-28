@@ -779,7 +779,7 @@ void heartUpdate(IMAGE heart[2], int heartCnt)
 void pointsUpdate() 
 {
 	static int y = 90;
-	if (awardGoldStatu == 0)
+	if (awardGoldStatu == 1)
 	{
 		y = 90;
 	}
