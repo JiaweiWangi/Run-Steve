@@ -24,8 +24,9 @@ int heartCnt = 10;
 int steveModle = 2;
 int jumpFlag = 0; // 1 jumping;
 
-
+int awardGoldStatu = 0;
 int points = 0;
+char Points[128];
 
 struct imageLocate
 {
@@ -70,6 +71,7 @@ void steveJump(imageLocate& steveLocate);
 item* createItem(item*,IMAGE&,int,int&);
 item* itemUpdate(item* barrierGold, IMAGE gold[2],int& cnt,int category);
 void heartUpdate(IMAGE heart[2], int heartCnt);
+void pointsUpdate();
 
 
 int main()
@@ -452,7 +454,6 @@ void startPage()
 	char file_name[128];
 	char file_name1[128];
 
-	char Points[128];
 	IMAGE gold[2];
 	IMAGE arrow[2];
 	IMAGE steve[steveNum];
@@ -565,11 +566,7 @@ void startPage()
 		if (i == steveNum)
 			i = 0;
 		
-		sprintf_s(Points, "Points:%04d", points);
-		settextstyle(35, 0, _T("Consolas"));
-		outtextxy(300, 50, _T(Points));
-		points++;
-	
+		pointsUpdate();
 		heartUpdate(heart, heartCnt);
 
 		FlushBatchDraw();
@@ -621,8 +618,8 @@ void steveMove(imageLocate& steveLocate)
 
 void steveJump(imageLocate& steveLocate)
 {
-	static int v0 = 40;
-	static int gravity = 5;
+	static int v0 = 26;
+	static int gravity = 2;
 
 	if (msg.message == WM_KEYDOWN)
 	{
@@ -637,7 +634,7 @@ void steveJump(imageLocate& steveLocate)
 	
 	if (steveLocate.y == 0)
 	{
-		v0 = 40;
+		v0 = 26;
 		jumpFlag = 0;
 	}
 	
@@ -648,7 +645,7 @@ item* createItem(item* head,IMAGE &gold,int modle,int& cnt)
 	cnt++;
 	item* p = new item(gold);
 	p->next = NULL;
-	p->speed = 10;
+	p->speed = 6;
 	p->y = 200;
 	p->modle = modle;
 
@@ -692,7 +689,11 @@ item* itemUpdate(item* barrierItem, IMAGE image[2],int& cnt,int category) //cate
 		barrierItem = barrierItem->next;
 		free(toDelete);
 		cnt--;
-		points += award;
+		if (category == 1)
+		{
+			points += award;
+			awardGoldStatu = 1;
+		}
 		if (category == 2)
 		{
 			heartCnt--;
@@ -713,7 +714,12 @@ item* itemUpdate(item* barrierItem, IMAGE image[2],int& cnt,int category) //cate
 				head->next = head->next->next;
 				free(toDelete);
 				cnt--;
-				points += award;
+				if (category == 1)
+				{
+					points += award;
+					awardGoldStatu = 1;
+				}
+				
 				if (category == 2)
 				{
 					heartCnt--;
@@ -768,4 +774,28 @@ void heartUpdate(IMAGE heart[2], int heartCnt)
 		putimage(heartLocate.x, heartLocate.y, &heart[0], SRCPAINT);
 		heartLocate.x += 50;
 	}
+}
+
+void pointsUpdate() 
+{
+	static int y = 90;
+	if (awardGoldStatu == 0)
+	{
+		y = 90;
+	}
+	sprintf_s(Points, "Points:%04d", points);
+	settextstyle(35, 0, _T("Consolas"));
+	outtextxy(300, 50, _T(Points));
+	if (awardGoldStatu != 0)
+	{
+		outtextxy(410, y, _T("+100"));
+		awardGoldStatu++;
+		y--;
+	}
+	if (awardGoldStatu == 20)
+	{
+		awardGoldStatu=0;
+	}
+	
+	points++;
 }
