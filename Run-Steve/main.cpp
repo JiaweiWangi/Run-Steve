@@ -24,6 +24,7 @@ int heartCnt = 10;
 int steveModle = 2;
 int jumpFlag = 0; // 1 jumping;
 
+int hurtStatue = 0;
 int awardGoldStatue = 0;
 int points = 0;
 char Points[128];
@@ -65,7 +66,7 @@ void loginAndRegisterPage(IMAGE& page,newUser& user);
 newUser* readUserInfo();
 bool cheackUser(newUser* head, newUser target);
 void headText(newUser& user);
-void startPage();
+void gamePage();
 void steveMove(imageLocate& steveLocate);
 void steveJump(imageLocate& steveLocate);
 item* createItem(item*,IMAGE&,int,int&);
@@ -78,7 +79,7 @@ int main()
 {
 	initgraph(WIDTH, HEIGHT);
 	//menuPage();
-	startPage();
+	gamePage();
 	fclose(dataFile);
 	system("pause");
 }
@@ -437,7 +438,7 @@ void headText(newUser& user)
 	}
 }
 
-void startPage()
+void gamePage()
 {
 
 	int goldCnt = 0;
@@ -463,10 +464,12 @@ void startPage()
 	IMAGE background[backgroundNum];
 	IMAGE sky[skyNum];
 	IMAGE heart[2];
+	IMAGE red;
 
 	imageLocate steveLocate(0, 0);
 	imageLocate railLocate(-90, -200);
 
+	loadimage(&red,"../image/red.png");
 	loadimage(&gold[0], "../image/star/gold1.png");
 	loadimage(&gold[1], "../image/star/gold.png");
 	loadimage(&arrow[0], "../image/arrow/arrow1.png");
@@ -559,9 +562,16 @@ void startPage()
 
 		barrierGold = itemUpdate(barrierGold, gold,goldCnt,1);
 		barrierArrow = itemUpdate(barrierArrow, arrow, arrowCnt,2);
-
 		putimage(steveLocate.x, steveLocate.y, &steve1[i], SRCAND);
 		putimage(steveLocate.x,steveLocate.y, &steve[i], SRCPAINT);
+		if (hurtStatue != 0)
+		{
+			putimage(0, 0, &red, SRCAND);
+			hurtStatue++;
+			if (hurtStatue == 6)
+				hurtStatue = 0;
+		}
+	
 		i++;
 		if (i == steveNum)
 			i = 0;
@@ -697,6 +707,7 @@ item* itemUpdate(item* barrierItem, IMAGE image[2],int& cnt,int category) //cate
 		if (category == 2)
 		{
 			heartCnt--;
+			hurtStatue = 1;
 		}
 			
 	}
@@ -723,6 +734,7 @@ item* itemUpdate(item* barrierItem, IMAGE image[2],int& cnt,int category) //cate
 				if (category == 2)
 				{
 					heartCnt--;
+					hurtStatue = 1;
 				}
 			}
 		}
