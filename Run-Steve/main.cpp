@@ -16,15 +16,15 @@ const int award = 100;
 int startTime;
 int freamTime;
 
-int menuStatu = 0; //0为初始页面 1为登录页面 2为注册页面
-int logORegStatu = 0; //0为初始 1为输入账号状态 2为输入密码状态 3为输入完成状态
-int userStatu = 0; //0为未登录 1为登录成功 2为登录失败 3为注册成功
+int menuStatue = 0; //0为初始页面 1为登录页面 2为注册页面
+int logORegStatue = 0; //0为初始 1为输入账号状态 2为输入密码状态 3为输入完成状态
+int userStatue = 0; //0为未登录 1为登录成功 2为登录失败 3为注册成功
 int heartCnt = 10;
 
 int steveModle = 2;
 int jumpFlag = 0; // 1 jumping;
 
-int awardGoldStatu = 0;
+int awardGoldStatue = 0;
 int points = 0;
 char Points[128];
 
@@ -172,7 +172,7 @@ void menuPage()
 
 		if (imageButtonDetect(startLocate,start))
 		{
-			if (msg.message == WM_LBUTTONDOWN && (userStatu == 1||userStatu==3))
+			if (msg.message == WM_LBUTTONDOWN && (userStatue == 1||userStatue==3))
 				break;
 			putimage(startLocate.x, startLocate.y, &lStart_1, SRCAND);
 			putimage(startLocate.x, startLocate.y, &lStart, SRCPAINT);
@@ -186,8 +186,8 @@ void menuPage()
 		{
 			if (msg.message == WM_LBUTTONDOWN)
 			{
-				menuStatu = 1;
-				logORegStatu = 1;
+				menuStatue = 1;
+				logORegStatue = 1;
 			}
 			else
 			{
@@ -206,8 +206,8 @@ void menuPage()
 		{
 			if (msg.message == WM_LBUTTONDOWN)
 			{
-				logORegStatu = 1;
-				menuStatu = 2;
+				logORegStatue = 1;
+				menuStatue = 2;
 			}
 			else
 			{
@@ -222,27 +222,27 @@ void menuPage()
 		}
 		putimage(runSteveLovate.x, runSteveLovate.y, &runSteve_1, SRCAND);
 		putimage(runSteveLovate.x, runSteveLovate.y, &runSteve, SRCPAINT);
-		if (menuStatu==1)
+		if (menuStatue==1)
 		{
 			
 			loginAndRegisterPage(loginPage, user);
-			if (logORegStatu ==3)
+			if (logORegStatue ==3)
 			{
 				if (cheackUser(head, user))
-					userStatu = 1;
+					userStatue = 1;
 				else
-					userStatu = 2;
+					userStatue = 2;
 			}
 		}
-		else if (menuStatu == 2)
+		else if (menuStatue == 2)
 		{
 			loginAndRegisterPage(registerPage, user);
-			if (logORegStatu == 3)
+			if (logORegStatue == 3)
 			{
-				userStatu = 3;
+				userStatue = 3;
 			}
 		}
-		if (userStatu == 1 || userStatu == 3)
+		if (userStatue == 1 || userStatue == 3)
 			fclose(dataFile);
 			
 
@@ -277,7 +277,7 @@ void loginAndRegisterPage(IMAGE& page,  newUser& user)
 	char ch[2];
 	ch[1] = '\0';
 
-	if (logORegStatu==1)
+	if (logORegStatue==1)
 	{
 		putimage(loginPageLocate.x, loginPageLocate.y, &page);
 		if (msg.message == WM_KEYDOWN)
@@ -291,7 +291,7 @@ void loginAndRegisterPage(IMAGE& page,  newUser& user)
 			}
 			else if (ch[0] == 13)
 			{
-				logORegStatu = 2;
+				logORegStatue = 2;
 			}
 			else
 			{
@@ -317,7 +317,7 @@ void loginAndRegisterPage(IMAGE& page,  newUser& user)
 		}
 		outtextxy(userLocate.x, userLocate.y, user.name);
 	}
-	else if (logORegStatu==2)
+	else if (logORegStatue==2)
 	{
 		putimage(loginPageLocate.x, loginPageLocate.y, &page);
 		if (msg.message == WM_KEYDOWN)
@@ -330,14 +330,14 @@ void loginAndRegisterPage(IMAGE& page,  newUser& user)
 			}
 			else if (ch[0] == 13)
 			{
-				logORegStatu = 3;
-				if (menuStatu == 2)  //当为注册时
+				logORegStatue = 3;
+				if (menuStatue == 2)  //当为注册时
 				{
 					fprintf(dataFile, "%s\n", user.name);
 					fprintf(dataFile, "%s\n", user.password);
-					userStatu = 3;
+					userStatue = 3;
 				}
-				menuStatu = 0;
+				menuStatue = 0;
 			}
 			else
 			{
@@ -416,7 +416,7 @@ void headText(newUser& user)
 	char s2[50] = "Login failed, Please try again";
 	char s3[50] = "";
 	char s4[50] = "Account not logged in";
-	switch (userStatu)
+	switch (userStatue)
 	{
 	case 0:
 		outtextxy((WIDTH - textwidth(s4)) / 2, 200, s4);
@@ -692,7 +692,7 @@ item* itemUpdate(item* barrierItem, IMAGE image[2],int& cnt,int category) //cate
 		if (category == 1)
 		{
 			points += award;
-			awardGoldStatu = 1;
+			awardGoldStatue = 1;
 		}
 		if (category == 2)
 		{
@@ -717,7 +717,7 @@ item* itemUpdate(item* barrierItem, IMAGE image[2],int& cnt,int category) //cate
 				if (category == 1)
 				{
 					points += award;
-					awardGoldStatu = 1;
+					awardGoldStatue = 1;
 				}
 				
 				if (category == 2)
@@ -779,22 +779,22 @@ void heartUpdate(IMAGE heart[2], int heartCnt)
 void pointsUpdate() 
 {
 	static int y = 90;
-	if (awardGoldStatu == 1)
+	if (awardGoldStatue == 1)
 	{
 		y = 90;
 	}
 	sprintf_s(Points, "Points:%04d", points);
 	settextstyle(35, 0, _T("Consolas"));
 	outtextxy(300, 50, _T(Points));
-	if (awardGoldStatu != 0)
+	if (awardGoldStatue != 0)
 	{
 		outtextxy(410, y, _T("+100"));
-		awardGoldStatu++;
+		awardGoldStatue++;
 		y--;
 	}
-	if (awardGoldStatu == 20)
+	if (awardGoldStatue == 20)
 	{
-		awardGoldStatu=0;
+		awardGoldStatue=0;
 	}
 	
 	points++;
