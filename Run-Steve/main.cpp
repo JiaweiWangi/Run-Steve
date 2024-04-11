@@ -19,7 +19,7 @@ int freamTime;
 int menuStatue = 0; //0为初始页面 1为登录页面 2为注册页面
 int logORegStatue = 0; //0为初始 1为输入账号状态 2为输入密码状态 3为输入完成状态
 int userStatue = 0; //0为未登录 1为登录成功 2为登录失败 3为注册成功
-int heartCnt = 10;
+int heartCnt = 10; //生命数
 
 int steveModle = 2;
 int jumpFlag = 0; // 1 jumping;
@@ -78,9 +78,13 @@ void pointsUpdate();
 int main()
 {
 	initgraph(WIDTH, HEIGHT);
-	//menuPage();
-	gamePage();
-	fclose(dataFile);
+	while (true)
+	{
+		menuPage();
+		gamePage();
+		fclose(dataFile);
+	}
+	
 	system("pause");
 }
 
@@ -579,13 +583,22 @@ void gamePage()
 		pointsUpdate();
 		heartUpdate(heart, heartCnt);
 
-		FlushBatchDraw();
+		if (heartCnt == 0)
+		{
+			setbkcolor(BLACK);
+			cleardevice();
+			RECT r = { 0, 0, WIDTH, HEIGHT };
+			drawtext(_T("GameOver"), &r, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+			FlushBatchDraw();
+			heartCnt = 10;
+			Sleep(1000);
+			break;
+		}
 
 		freamTime = clock() - startTime;
 		if (FPS - freamTime > 0)
 			Sleep(FPS - freamTime);
-
-			
+		FlushBatchDraw();
 		
 	}
 	EndBatchDraw();
