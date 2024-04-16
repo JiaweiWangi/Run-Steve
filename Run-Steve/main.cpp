@@ -26,7 +26,6 @@ int jumpFlag = 0; // 1 jumping;
 
 int hurtStatue = 0;
 int awardGoldStatue = 0;
-int points = 0;
 char Points[128];
 
 struct imageLocate
@@ -59,13 +58,15 @@ struct newUser
 	newUser() : name("\0"),password("\0"),score(0),next(NULL) {}
 };
 
+newUser* head;
+newUser user;
 
 void menuPage();
 bool imageButtonDetect(imageLocate& locate, IMAGE& image);
-void loginAndRegisterPage(IMAGE& page,newUser& user);
+void loginAndRegisterPage(IMAGE& page);
 newUser* readUserInfo();
-bool cheackUser(newUser* head, newUser target);
-void headText(newUser& user);
+bool cheackUser(newUser target);
+void headText();
 void gamePage();
 void steveMove(imageLocate& steveLocate);
 void steveJump(imageLocate& steveLocate);
@@ -117,7 +118,7 @@ void menuPage()
 	IMAGE registerPage;
 	
 	fopen_s(&dataFile, "../data/data.txt", "a+");
-	newUser* head;
+	
 	head = readUserInfo();
 	char file_name[128];
 	IMAGE menuPageVideoImage[menuPageVideoNum];
@@ -153,7 +154,6 @@ void menuPage()
 	bool loginFlag = 0; //1为结束输入
 	int loginStatu = 0; //0为初始状况，1为登录成功，2为登录失败，3为注册成功
 
-	newUser user;
 	
 	settextstyle(35, 0, _T("Consolas"));
 	settextcolor(BLACK);
@@ -230,10 +230,10 @@ void menuPage()
 		if (menuStatue==1)
 		{
 			
-			loginAndRegisterPage(loginPage, user);
+			loginAndRegisterPage(loginPage);
 			if (logORegStatue ==3)
 			{
-				if (cheackUser(head, user))
+				if (cheackUser(user))
 					userStatue = 1;
 				else
 					userStatue = 2;
@@ -241,7 +241,7 @@ void menuPage()
 		}
 		else if (menuStatue == 2)
 		{
-			loginAndRegisterPage(registerPage, user);
+			loginAndRegisterPage(registerPage);
 			if (logORegStatue == 3)
 			{
 				userStatue = 3;
@@ -251,7 +251,7 @@ void menuPage()
 			fclose(dataFile);
 			
 
-		headText(user);
+		headText();
 
 		
 		FlushBatchDraw();
@@ -273,7 +273,7 @@ bool imageButtonDetect(imageLocate& locate, IMAGE& image)
 		return 0;
 }
 
-void loginAndRegisterPage(IMAGE& page,  newUser& user)
+void loginAndRegisterPage(IMAGE& page)
 {
 
 	imageLocate loginPageLocate(44, 360);
@@ -340,6 +340,7 @@ void loginAndRegisterPage(IMAGE& page,  newUser& user)
 				{
 					fprintf(dataFile, "%s\n", user.name);
 					fprintf(dataFile, "%s\n", user.password);
+					fprintf(dataFile, "%d\n", user.score);
 					userStatue = 3;
 				}
 				menuStatue = 0;
@@ -401,7 +402,7 @@ newUser* readUserInfo()
 	return head;
 }
 
-bool cheackUser(newUser* head, newUser target)
+bool cheackUser(newUser target)
 {
 	newUser* temp = head;
 	while (temp)
@@ -413,7 +414,7 @@ bool cheackUser(newUser* head, newUser target)
 	return 0;
 }
 
-void headText(newUser& user)
+void headText()
 {
 	setbkmode(TRANSPARENT);
 	settextstyle(25, 0, _T("Consolas"));
@@ -714,7 +715,7 @@ item* itemUpdate(item* barrierItem, IMAGE image[2],int& cnt,int category) //cate
 		cnt--;
 		if (category == 1)
 		{
-			points += award;
+			user.score += award;
 			awardGoldStatue = 1;
 		}
 		if (category == 2)
@@ -740,7 +741,7 @@ item* itemUpdate(item* barrierItem, IMAGE image[2],int& cnt,int category) //cate
 				cnt--;
 				if (category == 1)
 				{
-					points += award;
+					user.score += award;
 					awardGoldStatue = 1;
 				}
 				
@@ -808,7 +809,7 @@ void pointsUpdate()
 	{
 		y = 90;
 	}
-	sprintf_s(Points, "Points:%04d", points);
+	sprintf_s(Points, "Points:%04d", user.score);
 	settextstyle(35, 0, _T("Consolas"));
 	outtextxy(300, 50, _T(Points));
 	if (awardGoldStatue != 0)
@@ -822,5 +823,5 @@ void pointsUpdate()
 		awardGoldStatue=0;
 	}
 	
-	points++;
+	user.score++;
 }
