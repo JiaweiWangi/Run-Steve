@@ -58,14 +58,14 @@ struct newUser
 	newUser() : name("\0"),password("\0"),score(0),next(NULL) {}
 };
 
-newUser* head;
-newUser user;
+newUser* head=NULL;
+newUser* user=(newUser*)malloc(sizeof(newUser));
 
 void menuPage();
 bool imageButtonDetect(imageLocate& locate, IMAGE& image);
 void loginAndRegisterPage(IMAGE& page);
 newUser* readUserInfo();
-bool cheackUser(newUser target);
+bool cheackUser(newUser* target);
 void headText();
 void gamePage();
 void steveMove(imageLocate& steveLocate);
@@ -290,9 +290,9 @@ void loginAndRegisterPage(IMAGE& page)
 
 			ch[0] = msg.vkcode;
 			printf("%d", ch[0]);
-			if (ch[0] == 8 && strlen(user.name) > 0)
+			if (ch[0] == 8 && strlen(user->name) > 0)
 			{
-				user.name[strlen(user.name) - 1] = '\0';
+				user->name[strlen(user->name) - 1] = '\0';
 			}
 			else if (ch[0] == 13)
 			{
@@ -300,8 +300,8 @@ void loginAndRegisterPage(IMAGE& page)
 			}
 			else
 			{
-				if (ch[0] != 8 && strlen(user.name) < 15)
-					strcat_s(user.name, ch);
+				if (ch[0] != 8 && strlen(user->name) < 15)
+					strcat_s(user->name, ch);
 			}
 		}
 		settextstyle(35, 15, _T("Consolas"));
@@ -309,7 +309,7 @@ void loginAndRegisterPage(IMAGE& page)
 		if (n < 10)
 		{
 			n++;
-			outtextxy(userLocate.x+15*strlen(user.name)-5, userLocate.y, "|");
+			outtextxy(userLocate.x+15*strlen(user->name)-5, userLocate.y, "|");
 		}
 		else if(n>=10&&n<20)
 		{
@@ -320,7 +320,7 @@ void loginAndRegisterPage(IMAGE& page)
 		{
 			n = 0;
 		}
-		outtextxy(userLocate.x, userLocate.y, user.name);
+		outtextxy(userLocate.x, userLocate.y, user->name);
 	}
 	else if (logORegStatue==2)
 	{
@@ -329,26 +329,26 @@ void loginAndRegisterPage(IMAGE& page)
 		{
 
 			ch[0] = msg.vkcode;
-			if (ch[0] == 8 && strlen(user.password) > 0)
+			if (ch[0] == 8 && strlen(user->password) > 0)
 			{
-				user.password[strlen(user.password) - 1] = '\0';
+				user->password[strlen(user->password) - 1] = '\0';
 			}
 			else if (ch[0] == 13)
 			{
 				logORegStatue = 3;
 				if (menuStatue == 2)  //µ±Îª×¢²áÊ±
 				{
-					fprintf(dataFile, "%s\n", user.name);
-					fprintf(dataFile, "%s\n", user.password);
-					fprintf(dataFile, "%d\n", user.score);
+					fprintf(dataFile, "%s\n", user->name);
+					fprintf(dataFile, "%s\n", user->password);
+					fprintf(dataFile, "%d\n", user->score);
 					userStatue = 3;
 				}
 				menuStatue = 0;
 			}
 			else
 			{
-				if (ch[0] != 8 && strlen(user.password) < 15)
-					strcat_s(user.password, ch);
+				if (ch[0] != 8 && strlen(user->password) < 15)
+					strcat_s(user->password, ch);
 			}
 		}
 		settextstyle(35, 15, _T("Consolas"));
@@ -356,7 +356,7 @@ void loginAndRegisterPage(IMAGE& page)
 		if (n < 10)
 		{
 			n++;
-			outtextxy(passwordLocate.x + 15 * strlen(user.password) - 5, passwordLocate.y, "|");
+			outtextxy(passwordLocate.x + 15 * strlen(user->password) - 5, passwordLocate.y, "|");
 		}
 		else if (n >= 10 && n < 20)
 		{
@@ -367,15 +367,14 @@ void loginAndRegisterPage(IMAGE& page)
 		{
 			n = 0;
 		}
-		outtextxy(userLocate.x, userLocate.y, user.name);
-		outtextxy(passwordLocate.x, passwordLocate.y, user.password);
+		outtextxy(userLocate.x, userLocate.y, user->name);
+		outtextxy(passwordLocate.x, passwordLocate.y, user->password);
 	}
 
 }
 
 newUser* readUserInfo()
 {
-	newUser* head = NULL;
 	while (!feof(dataFile))
 	{
 		newUser* p = (newUser*)malloc(sizeof(newUser));
@@ -402,12 +401,12 @@ newUser* readUserInfo()
 	return head;
 }
 
-bool cheackUser(newUser target)
+bool cheackUser(newUser *target)
 {
 	newUser* temp = head;
 	while (temp)
 	{
-		if (!strcmp(temp->name, target.name) && !strcmp(temp->password, target.password))
+		if (!strcmp(temp->name, target->name) && !strcmp(temp->password, target->password))
 			return 1;
 		temp = temp->next;
 	}
@@ -428,14 +427,14 @@ void headText()
 		outtextxy((WIDTH - textwidth(s4)) / 2, 200, s4);
 		break;
 	case 1:
-		sprintf_s(s, "Login successful,Welcome %s", user.name);
+		sprintf_s(s, "Login successful,Welcome %s", user->name);
 		outtextxy((WIDTH-textwidth(s))/2, 200, s);
 		break;
 	case 2:
 		outtextxy((WIDTH - textwidth(s2)) / 2, 200, s2);
 		break;
 	case 3:
-		sprintf_s(s3, "Register successful,Welcome %s", user.name);
+		sprintf_s(s3, "Register successful,Welcome %s", user->name);
 		outtextxy((WIDTH - textwidth(s3)) / 2, 200, s3);
 		break;
 	default:
@@ -715,7 +714,7 @@ item* itemUpdate(item* barrierItem, IMAGE image[2],int& cnt,int category) //cate
 		cnt--;
 		if (category == 1)
 		{
-			user.score += award;
+			user->score += award;
 			awardGoldStatue = 1;
 		}
 		if (category == 2)
@@ -741,7 +740,7 @@ item* itemUpdate(item* barrierItem, IMAGE image[2],int& cnt,int category) //cate
 				cnt--;
 				if (category == 1)
 				{
-					user.score += award;
+					user->score += award;
 					awardGoldStatue = 1;
 				}
 				
@@ -809,7 +808,7 @@ void pointsUpdate()
 	{
 		y = 90;
 	}
-	sprintf_s(Points, "Points:%04d", user.score);
+	sprintf_s(Points, "Points:%04d", user->score);
 	settextstyle(35, 0, _T("Consolas"));
 	outtextxy(300, 50, _T(Points));
 	if (awardGoldStatue != 0)
@@ -823,5 +822,5 @@ void pointsUpdate()
 		awardGoldStatue=0;
 	}
 	
-	user.score++;
+	user->score++;
 }
