@@ -12,6 +12,7 @@ FILE* dataFile;
 ExMessage msg;
 const clock_t FPS = 1000 / 60;
 const int award = 100;
+const int HEARTCNT = 1;
 
 int startTime;
 int freamTime;
@@ -19,13 +20,13 @@ int freamTime;
 int menuStatue = 0; //0为初始页面 1为登录页面 2为注册页面
 int logORegStatue = 0; //0为初始 1为输入账号状态 2为输入密码状态 3为输入完成状态
 int userStatue = 0; //0为未登录 1为登录成功 2为登录失败 3为注册成功
-int heartCnt = 10; //生命数
+int heartCnt = HEARTCNT; //生命数
 
 int steveModle = 2;
 int jumpFlag = 0; // 1 jumping;
 
-int hurtStatue = 0;
-int awardGoldStatue = 0;
+int hurtStatue;
+int awardGoldStatue;
 char Points[128];
 
 struct imageLocate
@@ -93,6 +94,12 @@ int main()
 //主界面循环
 void menuPage()
 {
+	//用户信息初始化
+
+	user->name[0] = '\0';
+	user->password[0] = '\0';
+	user->points = 0;
+
 	const int menuPageVideoNum = 897;
 	imageLocate runSteveLovate(12, 100);
 	imageLocate startLocate(132, 433);
@@ -440,6 +447,8 @@ void headText()
 //游戏循环
 void gamePage()
 {
+	hurtStatue = 0;
+	awardGoldStatue = 0;
 
 	int goldCnt = 0;
 	int arrowCnt = 0;
@@ -586,7 +595,10 @@ void gamePage()
 			RECT r = { 0, 0, WIDTH, HEIGHT };
 			drawtext(_T("GameOver"), &r, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 			FlushBatchDraw();
-			heartCnt = 10;
+			heartCnt = HEARTCNT;
+			if (user->points > user->score)
+				user->score = user->points;
+			user->points = 0;
 			Sleep(1000);
 			break;
 		}
