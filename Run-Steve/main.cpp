@@ -53,9 +53,10 @@ struct newUser
 {
 	char name[21];
 	char password[21];
-	int score;
-	newUser* next;
-	newUser() : name("\0"),password("\0"),score(0),next(NULL) {}
+	int score; //历史最高分
+	int points; //当前分数
+	newUser* next; 
+	newUser() : name("\0"),password("\0"),score(0),points(0),next(NULL) {}
 };
 
 newUser* head=NULL;
@@ -89,6 +90,7 @@ int main()
 	system("pause");
 }
 
+//主界面循环
 void menuPage()
 {
 	const int menuPageVideoNum = 897;
@@ -435,6 +437,7 @@ void headText()
 	}
 }
 
+//游戏循环
 void gamePage()
 {
 
@@ -707,7 +710,7 @@ item* itemUpdate(item* barrierItem, IMAGE image[2],int& cnt,int category) //cate
 		cnt--;
 		if (category == 1)
 		{
-			user->score += award;
+			user->points += award;
 			awardGoldStatue = 1;
 		}
 		if (category == 2)
@@ -733,7 +736,7 @@ item* itemUpdate(item* barrierItem, IMAGE image[2],int& cnt,int category) //cate
 				cnt--;
 				if (category == 1)
 				{
-					user->score += award;
+					user->points += award;
 					awardGoldStatue = 1;
 				}
 				
@@ -801,7 +804,7 @@ void pointsUpdate()
 	{
 		y = 90;
 	}
-	sprintf_s(Points, "Points:%04d", user->score);
+	sprintf_s(Points, "Points:%04d", user->points);
 	settextstyle(35, 0, _T("Consolas"));
 	outtextxy(300, 50, _T(Points));
 	if (awardGoldStatue != 0)
@@ -814,6 +817,5 @@ void pointsUpdate()
 	{
 		awardGoldStatue=0;
 	}
-	
-	user->score++;
+	user->points++;
 }
