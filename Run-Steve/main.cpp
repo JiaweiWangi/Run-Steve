@@ -373,6 +373,7 @@ int isEmptyFile()
 {
 	fseek(dataFile, 0L, SEEK_END);
 	long size = ftell(dataFile);
+	fseek(dataFile, 0, SEEK_SET);
 	return !(size == 0); // 返回零值表示文件为空，非零值表示文件非空
 }
 
