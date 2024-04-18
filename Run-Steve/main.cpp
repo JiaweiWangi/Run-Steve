@@ -65,6 +65,7 @@ void menuPage();
 bool imageButtonDetect(imageLocate& locate, IMAGE& image);
 void loginAndRegisterPage(IMAGE& page);
 newUser* readUserInfo();
+//newUser* updateUserInfo();
 bool cheackUser(newUser* target);
 void headText();
 void gamePage();
@@ -83,7 +84,6 @@ int main()
 	{
 		menuPage();
 		gamePage();
-		fclose(dataFile);
 	}
 	
 	system("pause");
@@ -116,8 +116,6 @@ void menuPage()
 	IMAGE lStart_1;
 	IMAGE loginPage;
 	IMAGE registerPage;
-	
-	fopen_s(&dataFile, "../data/data.txt", "a+");
 	
 	head = readUserInfo();
 	char file_name[128];
@@ -167,13 +165,10 @@ void menuPage()
 		cleardevice();
 		peekmessage(&msg);
 
-		
-
 		putimage(0, 0, &menuPageVideoImage[num]);
 		num++;
 		if (num == menuPageVideoNum-1)
 			num = 0;
-
 
 		if (imageButtonDetect(startLocate,start))
 		{
@@ -247,8 +242,6 @@ void menuPage()
 				userStatue = 3;
 			}
 		}
-		if (userStatue == 1 || userStatue == 3)
-			fclose(dataFile);
 			
 
 		headText();
@@ -338,9 +331,6 @@ void loginAndRegisterPage(IMAGE& page)
 				logORegStatue = 3;
 				if (menuStatue == 2)  //µ±Îª×¢²áÊ±
 				{
-					fprintf(dataFile, "%s\n", user->name);
-					fprintf(dataFile, "%s\n", user->password);
-					fprintf(dataFile, "%d\n", user->score);
 					userStatue = 3;
 				}
 				menuStatue = 0;
@@ -375,6 +365,8 @@ void loginAndRegisterPage(IMAGE& page)
 
 newUser* readUserInfo()
 {
+	head = NULL;
+	fopen_s(&dataFile, "../data/data.txt", "r");
 	while (!feof(dataFile))
 	{
 		newUser* p = (newUser*)malloc(sizeof(newUser));
@@ -398,6 +390,7 @@ newUser* readUserInfo()
 			head = p;
 		}
 	}
+	fclose(dataFile);
 	return head;
 }
 
