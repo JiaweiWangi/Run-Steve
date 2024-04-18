@@ -68,7 +68,7 @@ bool imageButtonDetect(imageLocate& locate, IMAGE& image);
 void loginAndRegisterPage(IMAGE& page);
 newUser* readUserInfo();
 newUser* updateUserFile();
-bool cheackUser(newUser* target);
+bool cheackUser();
 void headText();
 void gamePage();
 void steveMove(imageLocate& steveLocate);
@@ -237,7 +237,7 @@ void menuPage()
 			loginAndRegisterPage(loginPage);
 			if (logORegStatue ==3)
 			{
-				if (cheackUser(user))
+				if (cheackUser())
 					userStatue = 1;
 				else
 					userStatue = 2;
@@ -402,14 +402,20 @@ newUser* readUserInfo()
 	return head;
 }
 
+void* updateUserFile()
+{
+	if (!cheackUser())
+	{
 
+	}
+}
 
-bool cheackUser(newUser *target)
+bool cheackUser()
 {
 	newUser* temp = head;
 	while (temp)
 	{
-		if (!strcmp(temp->name, target->name) && !strcmp(temp->password, target->password))
+		if (!strcmp(temp->name, user->name) && !strcmp(temp->password, user->password))
 		{
 			user = temp;
 			user->points = 0;
