@@ -380,7 +380,10 @@ newUser* readUserInfo()
 	{
 		newUser* p = (newUser*)malloc(sizeof(newUser));
 		fgets(p->name, sizeof(p->name), dataFile);
+		char temp[21];
 		fgets(p->password, sizeof(p->password), dataFile);
+		fgets(temp, sizeof(temp), dataFile);
+		sscanf_s(temp, "%d", &p->score);
 		p->name[strcspn(p->name,"\n")]='\0';
 		p->password[strcspn(p->password,"\n")]= '\0';
 		//printf("%s\n%s\n", p->name, p->password);
