@@ -381,7 +381,13 @@ newUser* readUserInfo()
 {
 	head = NULL;
 	fopen_s(&dataFile, "../data/data.txt", "r");
-	while (isEmptyFile())
+	if (isEmptyFile()) //如果文件为空，返回空链表
+	{
+		fclose(dataFile);
+		return NULL;
+	}
+		
+	while (!feof(dataFile))
 	{
 		newUser* p = (newUser*)malloc(sizeof(newUser));
 		fgets(p->name, sizeof(p->name), dataFile);
