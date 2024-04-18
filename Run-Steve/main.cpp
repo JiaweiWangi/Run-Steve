@@ -67,7 +67,7 @@ void menuPage();
 bool imageButtonDetect(imageLocate& locate, IMAGE& image);
 void loginAndRegisterPage(IMAGE& page);
 newUser* readUserInfo();
-//newUser* updateUserInfo();
+newUser* updateUserFile();
 bool cheackUser(newUser* target);
 void headText();
 void gamePage();
@@ -251,11 +251,7 @@ void menuPage()
 				userStatue = 3;
 			}
 		}
-			
-
-		headText();
-
-		
+		headText();	
 		FlushBatchDraw();
 
 		freamTime = clock() - startTime;
@@ -406,13 +402,20 @@ newUser* readUserInfo()
 	return head;
 }
 
+
+
 bool cheackUser(newUser *target)
 {
 	newUser* temp = head;
 	while (temp)
 	{
 		if (!strcmp(temp->name, target->name) && !strcmp(temp->password, target->password))
+		{
+			user = temp;
+			user->points = 0;
 			return 1;
+		}
+			
 		temp = temp->next;
 	}
 	return 0;
