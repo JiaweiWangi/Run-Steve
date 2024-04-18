@@ -67,7 +67,7 @@ void menuPage();
 bool imageButtonDetect(imageLocate& locate, IMAGE& image);
 void loginAndRegisterPage(IMAGE& page);
 newUser* readUserInfo();
-newUser* updateUserFile();
+void updateUserFile();
 bool cheackUser();
 void headText();
 void gamePage();
@@ -402,11 +402,28 @@ newUser* readUserInfo()
 	return head;
 }
 
-void* updateUserFile()
+void updateUserFile()
 {
 	if (!cheackUser())
 	{
-
+		//将user接入链表
+		if (head == NULL)
+		{
+			head = user;
+		}
+		else
+		{
+			newUser* temp = head;
+			while (temp->next!=NULL)
+			{
+				temp = temp->next;
+			}
+			temp->next = user;
+			user->next = NULL;
+		}
+		//将链表按score排序
+		newUser* temp = head;
+		
 	}
 }
 
