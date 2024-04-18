@@ -77,6 +77,7 @@ item* createItem(item*,IMAGE&,int,int&);
 item* itemUpdate(item* barrierGold, IMAGE gold[2],int& cnt,int category);
 void heartUpdate(IMAGE heart[2], int heartCnt);
 void pointsUpdate();
+void drawRanking();
 
 
 int main()
@@ -132,6 +133,8 @@ void menuPage()
 	IMAGE registerPage;
 	
 	head = readUserInfo();
+
+	
 	char file_name[128];
 	IMAGE menuPageVideoImage[menuPageVideoNum];
 
@@ -670,15 +673,13 @@ void gamePage()
 		{
 			setbkcolor(BLACK);
 			cleardevice();
-			RECT r = { 0, 0, WIDTH, HEIGHT };
-			drawtext(_T("GameOver"), &r, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-			FlushBatchDraw();
+			
 			heartCnt = HEARTCNT;
 			if (user->points > user->score)
 				user->score = user->points;
 			user->points = 0;
 			updateUserFile();
-			Sleep(1000);
+			drawRanking();
 			break;
 		}
 
@@ -909,4 +910,59 @@ void pointsUpdate()
 		awardGoldStatue=0;
 	}
 	user->points++;
+}
+
+void drawRanking()
+{
+	const int recRight = 50;
+	const int recLeft = WIDTH - 50;
+	const int recHigh = 50;
+	const int recTop = 100;
+	RECT r[15];
+	newUser* temp = head;
+	for (int i = 0; i < 15; i++)
+	{
+		r[i] = {recRight,(recTop + recHigh * i),recLeft,(recTop + recHigh * (i + 1))};
+		if (i == 0)
+		{
+			drawtext(_T("GameOver"), &r[i], DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+		}
+		else if (i == 1)
+		{
+			drawtext(_T("NAME"), &r[i], DT_RIGHT | DT_VCENTER | DT_SINGLELINE);
+			drawtext(_T("SCORE"), &r[i], DT_LEFT | DT_VCENTER | DT_SINGLELINE);
+		}
+		else if(i>1&&i<12)
+		{
+			if (temp == NULL)
+				continue;
+			if (temp == user)
+			{
+				setfillcolor(LIGHTGRAY);
+				fillrectangle(recRight, (recTop + recHigh * i), recLeft, (recTop + recHigh * (i + 1)));
+			}
+			char score[21] = "";
+			char name[21] = "";
+			sprintf_s(score, "%d", temp->score);
+			sprintf_s(name, "%d: %s", i-1, temp->name);
+			drawtext(score, &r[i], DT_RIGHT | DT_VCENTER | DT_SINGLELINE);
+			drawtext(name, &r[i], DT_LEFT | DT_VCENTER | DT_SINGLELINE);
+			temp = temp->next;
+		}
+		else if (i == 12)
+		{
+			drawtext(_T("YOUR SCORE"), &r[i], DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+		}
+		else if (i == 13)
+		{
+			char score[21] = "";
+			char name[21] = "";
+			sprintf_s(score, "%d", user->score);
+			sprintf_s(name, "%s", user->name);
+			drawtext(score, &r[i], DT_RIGHT | DT_VCENTER | DT_SINGLELINE);
+			drawtext(name, &r[i], DT_LEFT | DT_VCENTER | DT_SINGLELINE);
+		}
+	}
+	FlushBatchDraw();
+	Sleep(5000);
 }
