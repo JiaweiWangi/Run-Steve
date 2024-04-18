@@ -374,24 +374,11 @@ void loginAndRegisterPage(IMAGE& page)
 
 }
 
-//int isEmptyFile()
-//{
-//	fseek(dataFile, 0, SEEK_END);
-//	long size = ftell(dataFile);
-//	fseek(dataFile, 0, SEEK_SET);
-//	return (size == 0); // 返回零值表示文件为空，非零值表示文件非空
-//}
-
 newUser* readUserInfo()
 {
 	head = NULL;
 	fopen_s(&dataFile, "../data/data.txt", "r");
-	//if (isEmptyFile()) //如果文件为空，返回空链表
-	//{
-	//	fclose(dataFile);
-	//	return NULL;
-	//}
-		
+
 	while (!feof(dataFile))
 	{
 		newUser* p = (newUser*)malloc(sizeof(newUser));
@@ -447,46 +434,46 @@ void updateUserFile()
 			temp->next = user;
 			user->next = NULL;
 		}
-		//将链表按score排序
-		newUser* i, * j;
-		char tempName[21];
-		char tempPassword[21];
-		int tempScore;
-		for (i = head; i!= NULL; i = i->next)
+	}
+	//将链表按score排序
+	newUser* i, * j;
+	char tempName[21];
+	char tempPassword[21];
+	int tempScore;
+	for (i = head; i != NULL; i = i->next)
+	{
+		for (j = i; j != NULL; j = j->next)
 		{
-			for (j = i; j!= NULL; j = j->next)
+			if (j->score > i->score)
 			{
-				if (j->score > i->score)
-				{
-					//temp = min->score;
-					tempScore = i->score;
-					strcpy_s(tempName, i->name);
-					strcpy_s(tempPassword, i->password);
-					//min->data = j->data;
-					i->score = j->score;
-					strcpy_s(i->name, j->name);
-					strcpy_s(i->password, j->password);
-					//j->data = temp;
-					j->score = tempScore;
-					strcpy_s(j->name, tempName);
-					strcpy_s(j->password, tempPassword);
-					user = j;
-				}
+				//temp = min->score;
+				tempScore = i->score;
+				strcpy_s(tempName, i->name);
+				strcpy_s(tempPassword, i->password);
+				//min->data = j->data;
+				i->score = j->score;
+				strcpy_s(i->name, j->name);
+				strcpy_s(i->password, j->password);
+				//j->data = temp;
+				j->score = tempScore;
+				strcpy_s(j->name, tempName);
+				strcpy_s(j->password, tempPassword);
+				user = j;
 			}
 		}
-		//将排好序的链表写入文件
-		newUser* temp = head;
-		fopen_s(&dataFile, "../data/data.txt", "w");
-		while (temp!=NULL)
-		{
-			fprintf(dataFile, "%s\n", temp->name);
-			fprintf(dataFile, "%s\n", temp->password);
-			fprintf(dataFile, "%d\n", temp->score);
-			temp = temp->next;
-		}
-		fclose(dataFile);
-
 	}
+	//将排好序的链表写入文件
+	newUser* temp = head;
+	fopen_s(&dataFile, "../data/data.txt", "w");
+	while (temp != NULL)
+	{
+		fprintf(dataFile, "%s\n", temp->name);
+		fprintf(dataFile, "%s\n", temp->password);
+		fprintf(dataFile, "%d\n", temp->score);
+		temp = temp->next;
+	}
+	fclose(dataFile);
+
 }
 
 bool cheackUser()
@@ -496,6 +483,7 @@ bool cheackUser()
 	{
 		if (!strcmp(temp->name, user->name) && !strcmp(temp->password, user->password))
 		{
+			temp->score = user->score;
 			user = temp;
 			user->points = 0;
 			return 1;
