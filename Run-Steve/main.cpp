@@ -77,6 +77,7 @@ item* createItem(item*,IMAGE&,int,int&);
 item* itemUpdate(item* barrierGold, IMAGE gold[2],int& cnt,int category);
 void heartUpdate(IMAGE heart[2], int heartCnt);
 void pointsUpdate();
+int isEmptyFile();
 
 
 int main()
@@ -368,14 +369,22 @@ void loginAndRegisterPage(IMAGE& page)
 
 }
 
+int isEmptyFile()
+{
+	fseek(dataFile, 0L, SEEK_END);
+	long size = ftell(dataFile);
+	return !(size == 0); // 返回零值表示文件为空，非零值表示文件非空
+}
+
 newUser* readUserInfo()
 {
 	head = NULL;
 	fopen_s(&dataFile, "../data/data.txt", "r");
-	while (!feof(dataFile))
+	while (isEmptyFile())
 	{
 		newUser* p = (newUser*)malloc(sizeof(newUser));
 		fgets(p->name, sizeof(p->name), dataFile);
+		
 		char temp[21];
 		fgets(p->password, sizeof(p->password), dataFile);
 		fgets(temp, sizeof(temp), dataFile);
@@ -410,6 +419,7 @@ void updateUserFile()
 		if (head == NULL)
 		{
 			head = user;
+			user->next = NULL;
 		}
 		else
 		{
@@ -422,8 +432,44 @@ void updateUserFile()
 			user->next = NULL;
 		}
 		//将链表按score排序
+		newUser* i, * j;
+		char tempName[21];
+		char tempPassword[21];
+		int tempScore;
+		for (i = head; i->next != NULL; i = i->next)
+		{
+			for (j = i; j->next != NULL; j = j->next)
+			{
+				if (j->score > i->score)
+				{
+					//temp = min->score;
+					tempScore = i->score;
+					strcat_s(tempName, i->name);
+					strcat_s(tempPassword, i->password);
+					//min->data = j->data;
+					i->score = j->score;
+					strcat_s(i->name, j->name);
+					strcat_s(i->password, j->password);
+					//j->data = temp;
+					j->score = tempScore;
+					strcat_s(j->name, tempName);
+					strcat_s(j->password, tempPassword);
+					user = j;
+				}
+			}
+		}
+		//将排好序的链表写入文件
 		newUser* temp = head;
-		
+		fopen_s(&dataFile, "../data/data.txt", "w");
+		while (temp!=NULL)
+		{
+			fprintf(dataFile, "%s\n", temp->name);
+			fprintf(dataFile, "%s\n", temp->password);
+			fprintf(dataFile, "%d\n", temp->score);
+			temp = temp->next;
+		}
+		fclose(dataFile);
+
 	}
 }
 
@@ -628,6 +674,7 @@ void gamePage()
 			if (user->points > user->score)
 				user->score = user->points;
 			user->points = 0;
+			updateUserFile();
 			Sleep(1000);
 			break;
 		}
