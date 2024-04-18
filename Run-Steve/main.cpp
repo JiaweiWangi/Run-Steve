@@ -17,9 +17,9 @@ const int HEARTCNT = 1;
 int startTime;
 int freamTime;
 
-int menuStatue = 0; //0为初始页面 1为登录页面 2为注册页面
-int logORegStatue = 0; //0为初始 1为输入账号状态 2为输入密码状态 3为输入完成状态
-int userStatue = 0; //0为未登录 1为登录成功 2为登录失败 3为注册成功
+int menuStatue; //0为初始页面 1为登录页面 2为注册页面
+int logORegStatue; //0为初始 1为输入账号状态 2为输入密码状态 3为输入完成状态
+int userStatue; //0为未登录 1为登录成功 2为登录失败 3为注册成功
 int heartCnt = HEARTCNT; //生命数
 
 int steveModle = 2;
@@ -61,7 +61,7 @@ struct newUser
 };
 
 newUser* head=NULL;
-newUser* user=(newUser*)malloc(sizeof(newUser));
+newUser* user;
 
 void menuPage();
 bool imageButtonDetect(imageLocate& locate, IMAGE& image);
@@ -96,10 +96,15 @@ int main()
 void menuPage()
 {
 	//用户信息初始化
-
+	user = (newUser*)malloc(sizeof(newUser));
 	user->name[0] = '\0';
 	user->password[0] = '\0';
 	user->points = 0;
+
+
+	menuStatue = 0; 
+	logORegStatue = 0; 
+	userStatue = 0; 
 
 	const int menuPageVideoNum = 897;
 	imageLocate runSteveLovate(12, 100);
@@ -369,29 +374,33 @@ void loginAndRegisterPage(IMAGE& page)
 
 }
 
-int isEmptyFile()
-{
-	fseek(dataFile, 0L, SEEK_END);
-	long size = ftell(dataFile);
-	fseek(dataFile, 0, SEEK_SET);
-	return !(size == 0); // 返回零值表示文件为空，非零值表示文件非空
-}
+//int isEmptyFile()
+//{
+//	fseek(dataFile, 0, SEEK_END);
+//	long size = ftell(dataFile);
+//	fseek(dataFile, 0, SEEK_SET);
+//	return (size == 0); // 返回零值表示文件为空，非零值表示文件非空
+//}
 
 newUser* readUserInfo()
 {
 	head = NULL;
 	fopen_s(&dataFile, "../data/data.txt", "r");
-	if (isEmptyFile()) //如果文件为空，返回空链表
-	{
-		fclose(dataFile);
-		return NULL;
-	}
+	//if (isEmptyFile()) //如果文件为空，返回空链表
+	//{
+	//	fclose(dataFile);
+	//	return NULL;
+	//}
 		
 	while (!feof(dataFile))
 	{
 		newUser* p = (newUser*)malloc(sizeof(newUser));
-		fgets(p->name, sizeof(p->name), dataFile);
 		
+		if (fgets(p->name, sizeof(p->name), dataFile) != NULL) {
+		}
+		else {
+			break;
+		}
 		char temp[21];
 		fgets(p->password, sizeof(p->password), dataFile);
 		fgets(temp, sizeof(temp), dataFile);
@@ -443,24 +452,24 @@ void updateUserFile()
 		char tempName[21];
 		char tempPassword[21];
 		int tempScore;
-		for (i = head; i->next != NULL; i = i->next)
+		for (i = head; i!= NULL; i = i->next)
 		{
-			for (j = i; j->next != NULL; j = j->next)
+			for (j = i; j!= NULL; j = j->next)
 			{
 				if (j->score > i->score)
 				{
 					//temp = min->score;
 					tempScore = i->score;
-					strcat_s(tempName, i->name);
-					strcat_s(tempPassword, i->password);
+					strcpy_s(tempName, i->name);
+					strcpy_s(tempPassword, i->password);
 					//min->data = j->data;
 					i->score = j->score;
-					strcat_s(i->name, j->name);
-					strcat_s(i->password, j->password);
+					strcpy_s(i->name, j->name);
+					strcpy_s(i->password, j->password);
 					//j->data = temp;
 					j->score = tempScore;
-					strcat_s(j->name, tempName);
-					strcat_s(j->password, tempPassword);
+					strcpy_s(j->name, tempName);
+					strcpy_s(j->password, tempPassword);
 					user = j;
 				}
 			}
