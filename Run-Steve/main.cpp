@@ -77,7 +77,6 @@ item* createItem(item*,IMAGE&,int,int&);
 item* itemUpdate(item* barrierGold, IMAGE gold[2],int& cnt,int category);
 void heartUpdate(IMAGE heart[2], int heartCnt);
 void pointsUpdate();
-int isEmptyFile();
 
 
 int main()
