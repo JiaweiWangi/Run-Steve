@@ -538,12 +538,15 @@ void gamePage()
 	int j = 0;
 	int m = 0;
 	int n = 0;
+
 	int attackCnt = 0;
+	int zombieCnt = 0;
 	const int steveNum = 14;
 	const int railNum = 4;
 	const int backgroundNum = 17;
 	const int skyNum = 24;
 	const int attackNum = 15;
+	const int zombieNum = 14;
 
 	char file_name[128];
 	char file_name1[128];
@@ -554,6 +557,7 @@ void gamePage()
 	IMAGE steve1[steveNum];
 	IMAGE attack[attackNum];
 	IMAGE attack1[attackNum];
+	IMAGE zomebie[2][zombieNum];
 	IMAGE rail[railNum];
 	IMAGE rail1[railNum];
 	IMAGE background[backgroundNum];
@@ -607,13 +611,23 @@ void gamePage()
 		loadimage(&attack[attackCnt], file_name);
 		loadimage(&attack1[attackCnt], file_name1);
 	}
+	for (zombieCnt = 0; zombieCnt < zombieNum; zombieCnt++)
+	{
+		sprintf_s(file_name, "../image/zombie/zombie%02d.jpg", zombieCnt);
+		sprintf_s(file_name1, "../image/zombie1/zombie1%02d.jpg", zombieCnt);
+		//printf(file_name);
+		loadimage(&zomebie[0][zombieCnt], file_name);
+		loadimage(&zomebie[1][zombieCnt], file_name1);
+	}
 	attackCnt = 0;
+	zombieCnt = 0;
 	i = 0;	
 	j = 0;
 	m = 0;
 	n = 1100;
 	item* barrierGold = NULL;
 	item* barrierArrow = NULL;
+	item* barrierZombie = NULL;
 	srand((unsigned int)time(0));
 	//MyClass* obj = new MyClass(args);
 
@@ -644,6 +658,11 @@ void gamePage()
 		{
 			rand_nuber = rand_nuber % 3 + 1;
 			barrierArrow = createItem(barrierArrow, arrow[0], rand_nuber, arrowCnt);
+		}
+		else if (rand_nuber<30)
+		{
+			rand_nuber = rand_nuber % 3 + 1;
+			barrierZombie = createItem(barrierZombie,zomebie[0],rand_nuber,)
 		}
 			
 		putimage(0, -50, &sky[n/100]);
