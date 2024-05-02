@@ -534,13 +534,14 @@ void gamePage()
 
 	int goldCnt = 0;
 	int arrowCnt = 0;
+	int zombieCnt = 0;
 	int i = 0;
 	int j = 0;
 	int m = 0;
 	int n = 0;
 
-	int attackCnt = 0;
-	int zombieCnt = 0;
+	int attackImgCnt = 0;
+	int zombieImgCnt = 0;
 	const int steveNum = 14;
 	const int railNum = 4;
 	const int backgroundNum = 17;
@@ -603,24 +604,24 @@ void gamePage()
 		sprintf_s(file_name, "../image/sky/sky%02d.jpg", n);
 		loadimage(&sky[n], file_name);
 	}
-	for (attackCnt = 0; attackCnt < attackNum; attackCnt++)
+	for (attackImgCnt = 0; attackImgCnt < attackNum; attackImgCnt++)
 	{
-		sprintf_s(file_name, "../image/attack/attack%02d.jpg", attackCnt);
-		sprintf_s(file_name1, "../image/attack1/attack1%02d.jpg", attackCnt);
+		sprintf_s(file_name, "../image/attack/attack%02d.jpg", attackImgCnt);
+		sprintf_s(file_name1, "../image/attack1/attack1%02d.jpg", attackImgCnt);
 		//printf(file_name);
-		loadimage(&attack[attackCnt], file_name);
-		loadimage(&attack1[attackCnt], file_name1);
+		loadimage(&attack[attackImgCnt], file_name);
+		loadimage(&attack1[attackImgCnt], file_name1);
 	}
-	for (zombieCnt = 0; zombieCnt < zombieNum; zombieCnt++)
+	for (zombieImgCnt = 0; zombieImgCnt < zombieNum; zombieImgCnt++)
 	{
-		sprintf_s(file_name, "../image/zombie/zombie%02d.jpg", zombieCnt);
-		sprintf_s(file_name1, "../image/zombie1/zombie1%02d.jpg", zombieCnt);
+		sprintf_s(file_name, "../image/zombie/zombie%02d.jpg", zombieImgCnt);
+		sprintf_s(file_name1, "../image/zombie1/zombie1%02d.jpg", zombieImgCnt);
 		//printf(file_name);
-		loadimage(&zomebie[0][zombieCnt], file_name);
-		loadimage(&zomebie[1][zombieCnt], file_name1);
+		loadimage(&zomebie[0][zombieImgCnt], file_name);
+		loadimage(&zomebie[1][zombieImgCnt], file_name1);
 	}
-	attackCnt = 0;
-	zombieCnt = 0;
+	attackImgCnt = 0;
+	zombieImgCnt = 0;
 	i = 0;	
 	j = 0;
 	m = 0;
@@ -662,7 +663,7 @@ void gamePage()
 		else if (rand_nuber<30)
 		{
 			rand_nuber = rand_nuber % 3 + 1;
-			barrierZombie = createItem(barrierZombie,zomebie[0],rand_nuber,)
+			barrierZombie = createItem(barrierZombie, zomebie[0][0], rand_nuber, zombieCnt);
 		}
 			
 		putimage(0, -50, &sky[n/100]);
@@ -685,6 +686,7 @@ void gamePage()
 
 		barrierGold = itemUpdate(barrierGold, gold,goldCnt,1);
 		barrierArrow = itemUpdate(barrierArrow, arrow, arrowCnt,2);
+		barrierZombie = itemUpdate(barrierZombie,zomebie)
 		if (!attackFlag)
 		{
 			putimage(steveLocate.x, steveLocate.y, &steve1[i], SRCAND);
@@ -693,12 +695,12 @@ void gamePage()
 		else
 		{
 			
-			putimage(steveLocate.x, steveLocate.y, &attack1[attackCnt], SRCAND);
-			putimage(steveLocate.x, steveLocate.y, &attack[attackCnt], SRCPAINT);
-			attackCnt++;
-			if (attackCnt == attackNum)
+			putimage(steveLocate.x, steveLocate.y, &attack1[attackImgCnt], SRCAND);
+			putimage(steveLocate.x, steveLocate.y, &attack[attackImgCnt], SRCPAINT);
+			attackImgCnt++;
+			if (attackImgCnt == attackNum)
 			{
-				attackCnt = 0;
+				attackImgCnt = 0;
 				attackFlag = 0;
 			}
 
@@ -805,10 +807,10 @@ void steveJump(imageLocate& steveLocate)
 	
 }
 
-item* createItem(item* head,IMAGE &gold,int modle,int& cnt)
+item* createItem(item* head,IMAGE &img,int modle,int& cnt)
 {
 	cnt++;
-	item* p = new item(gold);
+	item* p = new item(img);
 	p->next = NULL;
 	p->speed = 6;
 	p->y = 200;
