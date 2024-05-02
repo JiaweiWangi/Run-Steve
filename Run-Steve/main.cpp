@@ -24,6 +24,7 @@ int heartCnt = HEARTCNT; //ÉúÃüÊý
 
 int steveModle = 2;
 int jumpFlag = 0; // 1 jumping;
+int attackFlag = 0; // 1 attacking
 
 int hurtStatue;
 int awardGoldStatue;
@@ -537,10 +538,12 @@ void gamePage()
 	int j = 0;
 	int m = 0;
 	int n = 0;
+	int attackCnt = 0;
 	const int steveNum = 14;
 	const int railNum = 4;
 	const int backgroundNum = 17;
 	const int skyNum = 24;
+	const int attackNum = 15;
 
 	char file_name[128];
 	char file_name1[128];
@@ -549,6 +552,8 @@ void gamePage()
 	IMAGE arrow[2];
 	IMAGE steve[steveNum];
 	IMAGE steve1[steveNum];
+	IMAGE attack[attackNum];
+	IMAGE attack1[attackNum];
 	IMAGE rail[railNum];
 	IMAGE rail1[railNum];
 	IMAGE background[backgroundNum];
@@ -594,6 +599,15 @@ void gamePage()
 		sprintf_s(file_name, "../image/sky/sky%02d.jpg", n);
 		loadimage(&sky[n], file_name);
 	}
+	for (attackCnt = 0; attackCnt < attackNum; attackCnt++)
+	{
+		sprintf_s(file_name, "../image/attack/attack%02d.jpg", attackCnt);
+		sprintf_s(file_name1, "../image/attack1/attack1%02d.jpg", attackCnt);
+		//printf(file_name);
+		loadimage(&attack[attackCnt], file_name);
+		loadimage(&attack1[attackCnt], file_name1);
+	}
+	attackCnt = 0;
 	i = 0;	
 	j = 0;
 	m = 0;
@@ -652,8 +666,25 @@ void gamePage()
 
 		barrierGold = itemUpdate(barrierGold, gold,goldCnt,1);
 		barrierArrow = itemUpdate(barrierArrow, arrow, arrowCnt,2);
-		putimage(steveLocate.x, steveLocate.y, &steve1[i], SRCAND);
-		putimage(steveLocate.x,steveLocate.y, &steve[i], SRCPAINT);
+		if (!attackFlag)
+		{
+			putimage(steveLocate.x, steveLocate.y, &steve1[i], SRCAND);
+			putimage(steveLocate.x, steveLocate.y, &steve[i], SRCPAINT);
+		}
+		else
+		{
+			
+			putimage(steveLocate.x, steveLocate.y, &attack1[attackCnt], SRCAND);
+			putimage(steveLocate.x, steveLocate.y, &attack[attackCnt], SRCPAINT);
+			attackCnt++;
+			if (attackCnt == attackNum)
+			{
+				attackCnt = 0;
+				attackFlag = 0;
+			}
+
+		}
+		
 		if (hurtStatue != 0)
 		{
 			putimage(0, 0, &red, SRCAND);
@@ -707,6 +738,10 @@ void steveMove(imageLocate& steveLocate)
 		if (msg.vkcode == 0x27)
 		{
 			steveMoveFlag = 1;
+		}
+		if (msg.vkcode == 0x28)
+		{
+			attackFlag = 1;
 		}
 	}
 
