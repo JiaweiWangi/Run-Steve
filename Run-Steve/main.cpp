@@ -12,7 +12,8 @@
 #define HEIGHT 920
 FILE* dataFile;
 ExMessage msg;
-const clock_t FPS = 1000 / 60;
+const clock_t fpsMenu = 1000 / 165;
+const clock_t fpsGame = 1000 / 60;
 const int award = 100;
 const int HEARTCNT = 10;
 
@@ -180,6 +181,7 @@ void menuPage()
 	settextcolor(BLACK);
 	setbkcolor(WHITE);
 
+	// 背景音乐播放
 	mciSendString("open ../songs/C418.wav alias MySong", NULL, 0, NULL);
 	mciSendString("play MySong", NULL, 0, NULL);
 
@@ -198,9 +200,13 @@ void menuPage()
 
 		if (imageButtonDetect(startLocate,start))
 		{
-			PlaySound("../songs/button.wav", NULL, SND_ASYNC);
-			if (msg.message == WM_LBUTTONDOWN && (userStatue == 1||userStatue==3))
+			
+			if (msg.message == WM_LBUTTONDOWN && (userStatue == 1 || userStatue == 3))
+			{
+				PlaySound("../songs/button.wav", NULL, SND_ASYNC);
 				break;
+			}
+				
 			putimage(startLocate.x, startLocate.y, &lStart_1, SRCAND);
 			putimage(startLocate.x, startLocate.y, &lStart, SRCPAINT);
 		}
@@ -276,7 +282,7 @@ void menuPage()
 
 		freamTime = clock() - startTime;
 		if (freamTime > 0)
-			Sleep(FPS - freamTime);
+			Sleep(fpsMenu - freamTime);
 
 	}
 
@@ -657,21 +663,19 @@ void gamePage()
 
 		steveMove(steveLocate);
 		steveJump(steveLocate);
-		
-		
 	
-		int rand_nuber = rand() % 100 + 1;
-		if (goldCnt <= 3 && rand_nuber < 10)
+		int rand_nuber = rand() % 150 + 1;
+		if (goldCnt <= 3 && rand_nuber < 6)
 		{
 			rand_nuber = rand_nuber % 3 + 1;
 			barrierGold = createItem(barrierGold, gold[0], rand_nuber , goldCnt);
 		}
-		else if (arrowCnt <= 2&&rand_nuber<15)
+		else if (arrowCnt <= 2&&rand_nuber<12)
 		{
 			rand_nuber = rand_nuber % 3 + 1;
 			barrierArrow = createItem(barrierArrow, arrow[0], rand_nuber, arrowCnt);
 		}
-		else if (zombieCnt<=2&&rand_nuber<30)
+		else if (zombieCnt<=2&&rand_nuber<18)
 		{
 			rand_nuber = rand_nuber % 3 + 1;
 			barrierZombie = createItem(barrierZombie, zomebie[0][0], rand_nuber, zombieCnt);
@@ -748,8 +752,8 @@ void gamePage()
 		}
 
 		freamTime = clock() - startTime;
-		if (FPS - freamTime > 0)
-			Sleep(FPS - freamTime);
+		if (fpsGame - freamTime > 0)
+			Sleep(fpsGame - freamTime);
 		printf("%d\n",freamTime);
 		FlushBatchDraw();
 		
@@ -879,11 +883,13 @@ item* itemUpdate(item* barrierItem,int& cnt,int category) //category 1为金币 2为
 		{
 			user->points += award;
 			awardGoldStatue = 1;
+			PlaySound("../songs/getGold.wav", NULL, SND_ASYNC);
 		}
 		if (category == 2||category==3)
 		{
 			heartCnt--;
 			hurtStatue = 1;
+			PlaySound("../songs/hurt.wav", NULL, SND_ASYNC);
 		}	
 	}
 	item* head = barrierItem;
@@ -892,7 +898,7 @@ item* itemUpdate(item* barrierItem,int& cnt,int category) //category 1为金币 2为
 	{
 		if (category ==3&&head->next != NULL && head->next->modle == steveModle && attackFlag == 1)
 		{
-			if (barrierItem->y >= 600 && barrierItem->y <= 750)
+			if (head->next->y >= 600 && head->next->y <= 750)
 			{
 				item* toDelete = head->next;
 				head->next = head->next->next;
@@ -912,12 +918,14 @@ item* itemUpdate(item* barrierItem,int& cnt,int category) //category 1为金币 2为
 				{
 					user->points += award;
 					awardGoldStatue = 1;
+					PlaySound("../songs/getGold.wav", NULL, SND_ASYNC);
 				}
 				
-				if (category == 2)
+				if (category == 2||category==3)
 				{
 					heartCnt--;
 					hurtStatue = 1;
+					PlaySound("../songs/hurt.wav", NULL, SND_ASYNC);
 				}
 			}
 		}
