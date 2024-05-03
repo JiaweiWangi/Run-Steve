@@ -17,15 +17,15 @@ clock_t fpsGame = 1000 / 60;
 
 //默认SETTINGS数值
 const int AWARDPOINS = 100; // 奖励分数
-const int HEARCNT = 5; //生命数
+const int HEARTCNT = 5; //生命数
 const int MAXGOLDNUM = 3; //最大金币数量
 const int MAXARROWNUM = 3; //最大箭数量
 const int MAXZOMBIENUM = 3; //最大僵尸数量
 
 // SETTINGS
 int award = AWARDPOINS; // 奖励分数基准
-int heartCnt = 5; //生命数
-int maxGoldNum = 3 //最大金币数量
+int heartCnt = HEARTCNT; //生命数
+int maxGoldNum = MAXGOLDNUM; //最大金币数量
 
 int startTime;
 int freamTime;
