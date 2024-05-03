@@ -1,10 +1,12 @@
 #include<cstdio>
 #include<graphics.h>
-#include<time.h>
 #include<conio.h>
 #include<cstring>
 #include<cstdlib>
 #include<time.h>
+#include<Windows.h>
+#include <mmsystem.h>
+#pragma comment(lib, "WINMM.LIB")
 
 #define WIDTH 540
 #define HEIGHT 920
@@ -12,7 +14,7 @@ FILE* dataFile;
 ExMessage msg;
 const clock_t FPS = 1000 / 60;
 const int award = 100;
-const int HEARTCNT = 1;
+const int HEARTCNT = 10;
 
 int startTime;
 int freamTime;
@@ -25,6 +27,9 @@ int heartCnt = HEARTCNT; //生命数
 int steveModle = 2;
 int jumpFlag = 0; // 1 jumping;
 int attackFlag = 0; // 1 attacking
+
+int zombieImgCnt = 0;
+const int zombieNum = 14;
 
 int hurtStatue;
 int awardGoldStatue;
@@ -75,7 +80,7 @@ void gamePage();
 void steveMove(imageLocate& steveLocate);
 void steveJump(imageLocate& steveLocate);
 item* createItem(item*,IMAGE&,int,int&);
-item* itemUpdate(item* barrierGold, IMAGE gold[2],int& cnt,int category);
+item* itemUpdate(item* barrierGold,int& cnt,int category);
 void heartUpdate(IMAGE heart[2], int heartCnt);
 void pointsUpdate();
 void drawRanking();
@@ -175,6 +180,9 @@ void menuPage()
 	settextcolor(BLACK);
 	setbkcolor(WHITE);
 
+	mciSendString("open ../songs/C418.wav alias MySong", NULL, 0, NULL);
+	mciSendString("play MySong", NULL, 0, NULL);
+
 	BeginBatchDraw();
 
 	while (true)
@@ -190,6 +198,7 @@ void menuPage()
 
 		if (imageButtonDetect(startLocate,start))
 		{
+			PlaySound("../songs/button.wav", NULL, SND_ASYNC);
 			if (msg.message == WM_LBUTTONDOWN && (userStatue == 1||userStatue==3))
 				break;
 			putimage(startLocate.x, startLocate.y, &lStart_1, SRCAND);
@@ -206,6 +215,7 @@ void menuPage()
 			{
 				menuStatue = 1;
 				logORegStatue = 1;
+				PlaySound("../songs/button.wav", NULL, SND_ASYNC);
 			}
 			else
 			{
@@ -226,6 +236,7 @@ void menuPage()
 			{
 				logORegStatue = 1;
 				menuStatue = 2;
+				PlaySound("../songs/button.wav", NULL, SND_ASYNC);
 			}
 			else
 			{
@@ -541,13 +552,13 @@ void gamePage()
 	int n = 0;
 
 	int attackImgCnt = 0;
-	int zombieImgCnt = 0;
+
 	const int steveNum = 14;
 	const int railNum = 4;
 	const int backgroundNum = 17;
 	const int skyNum = 24;
 	const int attackNum = 15;
-	const int zombieNum = 14;
+	
 
 	char file_name[128];
 	char file_name1[128];
@@ -650,7 +661,7 @@ void gamePage()
 		
 	
 		int rand_nuber = rand() % 100 + 1;
-		if (goldCnt <= 5 && rand_nuber < 10)
+		if (goldCnt <= 3 && rand_nuber < 10)
 		{
 			rand_nuber = rand_nuber % 3 + 1;
 			barrierGold = createItem(barrierGold, gold[0], rand_nuber , goldCnt);
@@ -660,7 +671,7 @@ void gamePage()
 			rand_nuber = rand_nuber % 3 + 1;
 			barrierArrow = createItem(barrierArrow, arrow[0], rand_nuber, arrowCnt);
 		}
-		else if (rand_nuber<30)
+		else if (zombieCnt<=2&&rand_nuber<30)
 		{
 			rand_nuber = rand_nuber % 3 + 1;
 			barrierZombie = createItem(barrierZombie, zomebie[0][0], rand_nuber, zombieCnt);
@@ -684,9 +695,10 @@ void gamePage()
 		if (j == railNum)
 			j = 0;
 
-		barrierGold = itemUpdate(barrierGold, gold,goldCnt,1);
-		barrierArrow = itemUpdate(barrierArrow, arrow, arrowCnt,2);
-		barrierZombie = itemUpdate(barrierZombie,zomebie)
+		barrierGold = itemUpdate(barrierGold, goldCnt,1);
+		barrierArrow = itemUpdate(barrierArrow,arrowCnt,2);
+		barrierZombie = itemUpdate(barrierZombie,zombieCnt, 3);
+
 		if (!attackFlag)
 		{
 			putimage(steveLocate.x, steveLocate.y, &steve1[i], SRCAND);
@@ -738,6 +750,7 @@ void gamePage()
 		freamTime = clock() - startTime;
 		if (FPS - freamTime > 0)
 			Sleep(FPS - freamTime);
+		printf("%d\n",freamTime);
 		FlushBatchDraw();
 		
 	}
@@ -839,17 +852,23 @@ item* createItem(item* head,IMAGE &img,int modle,int& cnt)
 	return head;
 }
 
-item* itemUpdate(item* barrierItem, IMAGE image[2],int& cnt,int category) //category 1为金币 2为箭头
+item* itemUpdate(item* barrierItem,int& cnt,int category) //category 1为金币 2为箭头 3为僵尸
 {
+	IMAGE image[2];
 	if (barrierItem!=NULL && barrierItem->y > HEIGHT)
 	{
 		item* toDelete = barrierItem;
 		barrierItem = barrierItem->next;
 		free(toDelete);
-		cnt--;
-			
+		cnt--;	
 	}
-
+	if (category==3&&barrierItem != NULL && barrierItem->y >= 600 && barrierItem->y <= 750 && barrierItem->modle == steveModle && attackFlag == 1)
+	{
+		item* toDelete = barrierItem;
+		barrierItem = barrierItem->next;
+		free(toDelete);
+		cnt--;
+	}
 	if (barrierItem != NULL && barrierItem->y >= 750 && barrierItem->y <= 800 && barrierItem->modle == steveModle&&jumpFlag==0)
 	{
 		item* toDelete = barrierItem;
@@ -861,19 +880,26 @@ item* itemUpdate(item* barrierItem, IMAGE image[2],int& cnt,int category) //cate
 			user->points += award;
 			awardGoldStatue = 1;
 		}
-		if (category == 2)
+		if (category == 2||category==3)
 		{
 			heartCnt--;
 			hurtStatue = 1;
-		}
-			
+		}	
 	}
-
 	item* head = barrierItem;
 	int size;
 	while (head)
 	{
-		
+		if (category ==3&&head->next != NULL && head->next->modle == steveModle && attackFlag == 1)
+		{
+			if (barrierItem->y >= 600 && barrierItem->y <= 750)
+			{
+				item* toDelete = head->next;
+				head->next = head->next->next;
+				free(toDelete);
+				cnt--;
+			}
+		}
 		if (head->next != NULL && head->next->modle == steveModle&&jumpFlag == 0)
 		{
 			if (head->next->y >= 750 && head->next->y <= 800)
@@ -896,9 +922,9 @@ item* itemUpdate(item* barrierItem, IMAGE image[2],int& cnt,int category) //cate
 			}
 		}
 
+		head->y += head->y*0.015;
+		printf("%d\n", head -> speed);
 
-		head->y += head->speed;
-		
 		if (head->modle == 1)
 		{
 			head->x = (int)(-0.224 * head->y +220);
@@ -918,18 +944,30 @@ item* itemUpdate(item* barrierItem, IMAGE image[2],int& cnt,int category) //cate
 		{
 			loadimage(&image[0], "../image/star/gold1.png", size, size, true);
 			loadimage(&image[1], "../image/star/gold.png", size, size, true);
+			putimage(head->x, head->y, &image[0], SRCAND);
+			putimage(head->x, head->y, &image[1], SRCPAINT);
 		}
 		else if (category == 2)
 		{
 			loadimage(&image[0], "../image/arrow/arrow1.png", size, size, true);
 			loadimage(&image[1], "../image/arrow/arrow.png", size, size, true);
+			putimage(head->x, head->y, &image[0], SRCAND);
+			putimage(head->x, head->y, &image[1], SRCPAINT);
 		}
-
-		putimage(head->x, head->y, &image[0], SRCAND);
-		putimage(head->x, head->y, &image[1], SRCPAINT);
-
+		else if (category == 3)
+		{
+			char file_name[128], file_name1[128];
+			sprintf_s(file_name, "../image/zombie/zombie%02d.jpg", zombieImgCnt);
+			sprintf_s(file_name1, "../image/zombie1/zombie1%02d.jpg", zombieImgCnt);
+			zombieImgCnt++;
+			if (zombieImgCnt == zombieNum)
+				zombieImgCnt = 0;
+			loadimage(&image[0], file_name1, size * 3, size * 3, true);
+			loadimage(&image[1], file_name, size * 3, size * 3, true);
+			putimage(head->x-size, head->y, &image[0], SRCAND);
+			putimage(head->x -size, head->y, &image[1], SRCPAINT);
+		}
 		head = head->next;
-
 	}
 	return barrierItem;
 }
@@ -985,8 +1023,8 @@ void drawRanking()
 		}
 		else if (i == 1)
 		{
-			drawtext(_T("NAME"), &r[i], DT_RIGHT | DT_VCENTER | DT_SINGLELINE);
-			drawtext(_T("SCORE"), &r[i], DT_LEFT | DT_VCENTER | DT_SINGLELINE);
+			drawtext(_T("SCORE"), &r[i], DT_RIGHT | DT_VCENTER | DT_SINGLELINE);
+			drawtext(_T("NAME"), &r[i], DT_LEFT | DT_VCENTER | DT_SINGLELINE);
 		}
 		else if(i>1&&i<12)
 		{
