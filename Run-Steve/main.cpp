@@ -14,8 +14,18 @@ FILE* dataFile;
 ExMessage msg;
 clock_t fpsMenu = 1000 / 165;
 clock_t fpsGame = 1000 / 60;
-const int award = 100;
-const int HEARTCNT = 10;
+
+//默认SETTINGS数值
+const int AWARDPOINS = 100; // 奖励分数
+const int HEARCNT = 5; //生命数
+const int MAXGOLDNUM = 3; //最大金币数量
+const int MAXARROWNUM = 3; //最大箭数量
+const int MAXZOMBIENUM = 3; //最大僵尸数量
+
+// SETTINGS
+int award = AWARDPOINS; // 奖励分数基准
+int heartCnt = 5; //生命数
+int maxGoldNum = 3 //最大金币数量
 
 int startTime;
 int freamTime;
@@ -23,7 +33,6 @@ int freamTime;
 int menuStatue; //0为初始页面 1为登录页面 2为注册页面
 int logORegStatue; //0为初始 1为输入账号状态 2为输入密码状态 3为输入完成状态
 int userStatue; //0为未登录 1为登录成功 2为登录失败 3为注册成功
-int heartCnt = HEARTCNT; //生命数
 
 int steveModle = 2;
 int jumpFlag = 0; // 1 jumping;
@@ -35,6 +44,20 @@ const int zombieNum = 14;
 int hurtStatue;
 int awardGoldStatue;
 char Points[128];
+
+
+// 游戏界面物品动画的逐帧图片
+// 由于loadimage缩放图片效率过低
+// 若在播放动画时加载 则会造成卡顿
+// 故而先按比例加载好
+// 以内存换时间 实测占用内存不多
+// 较特殊 用全局变量更方便 
+IMAGE frameWiseGold[120];
+IMAGE frameWiseGold1[120];
+IMAGE frameWiseArrow[120];
+IMAGE frameWiseArrow1[120];
+IMAGE frameWiseZombie[120];
+IMAGE frameWiseZombie1[120];
 
 struct imageLocate
 {
@@ -584,6 +607,28 @@ void gamePage()
 	IMAGE heart[2];
 	IMAGE red;
 
+
+	int size;
+	int y = 200;
+	for (int i = 0; i < 120;i++)
+	{
+		size = (int)((y * 0.1));
+		loadimage(&frameWiseGold[i], "../image/star/gold1.png", size, size, true);
+		loadimage(&frameWiseGold1[i], "../image/star/gold.png", size, size, true);
+		loadimage(&frameWiseArrow[i], "../image/arrow/arrow1.png", size, size, true);
+		loadimage(&frameWiseArrow1[i], "../image/arrow/arrow.png", size, size, true);
+		char file_name[128], file_name1[128];
+		sprintf_s(file_name, "../image/zombie/zombie%02d.jpg", zombieImgCnt);
+		sprintf_s(file_name1, "../image/zombie1/zombie1%02d.jpg", zombieImgCnt);
+		zombieImgCnt++;
+		if (zombieImgCnt == zombieNum)
+			zombieImgCnt = 0;
+		loadimage(&frameWiseZombie[i], file_name1, size * 3, size * 3, true);
+		loadimage(&frameWiseZombie1[i], file_name, size * 3, size * 3, true);
+		y += 6;
+	}
+	
+
 	imageLocate steveLocate(0, 0);
 	imageLocate railLocate(-90, -200);
 
@@ -947,34 +992,25 @@ item* itemUpdate(item* barrierItem,int& cnt,int category) //category 1为金币 2为
 			head->x = (int)(0.13*head->y+320);
 		}
 
-		size = (int)((head->y * 0.1));
 
+		size = (int)((head->y * 0.1));
+		int imageCnt = (head->y - 200) / 6;
 		if (category == 1)
 		{
-			loadimage(&image[0], "../image/star/gold1.png", size, size, true);
-			loadimage(&image[1], "../image/star/gold.png", size, size, true);
-			putimage(head->x, head->y, &image[0], SRCAND);
-			putimage(head->x, head->y, &image[1], SRCPAINT);
+			putimage(head->x, head->y, &frameWiseGold[imageCnt], SRCAND);
+			putimage(head->x, head->y, &frameWiseGold1[imageCnt], SRCPAINT);
 		}
 		else if (category == 2)
 		{
-			loadimage(&image[0], "../image/arrow/arrow1.png", size, size, true);
-			loadimage(&image[1], "../image/arrow/arrow.png", size, size, true);
-			putimage(head->x, head->y, &image[0], SRCAND);
-			putimage(head->x, head->y, &image[1], SRCPAINT);
+	
+			putimage(head->x, head->y, &frameWiseArrow[imageCnt], SRCAND);
+			putimage(head->x, head->y, &frameWiseArrow1[imageCnt], SRCPAINT);
 		}
 		else if (category == 3)
 		{
-			char file_name[128], file_name1[128];
-			sprintf_s(file_name, "../image/zombie/zombie%02d.jpg", zombieImgCnt);
-			sprintf_s(file_name1, "../image/zombie1/zombie1%02d.jpg", zombieImgCnt);
-			zombieImgCnt++;
-			if (zombieImgCnt == zombieNum)
-				zombieImgCnt = 0;
-			loadimage(&image[0], file_name1, size * 3, size * 3, true);
-			loadimage(&image[1], file_name, size * 3, size * 3, true);
-			putimage(head->x-size, head->y, &image[0], SRCAND);
-			putimage(head->x -size, head->y, &image[1], SRCPAINT);
+			
+			putimage(head->x-size, head->y, &frameWiseZombie[imageCnt], SRCAND);
+			putimage(head->x -size, head->y, &frameWiseZombie1[imageCnt], SRCPAINT);
 		}
 		head = head->next;
 	}
