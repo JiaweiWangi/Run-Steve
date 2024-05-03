@@ -26,6 +26,8 @@ const int MAXZOMBIENUM = 3; //最大僵尸数量
 int award = AWARDPOINS; // 奖励分数基准
 int heartCnt = HEARTCNT; //生命数
 int maxGoldNum = MAXGOLDNUM; //最大金币数量
+int maxArrowNum = MAXARROWNUM; //最大箭数量
+int maxZombieNum = MAXZOMBIENUM;  //最大僵尸数量
 
 int startTime;
 int freamTime;
