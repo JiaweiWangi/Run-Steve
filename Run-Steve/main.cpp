@@ -12,8 +12,8 @@
 #define HEIGHT 920
 FILE* dataFile;
 ExMessage msg;
-const clock_t fpsMenu = 1000 / 165;
-const clock_t fpsGame = 1000 / 60;
+clock_t fpsMenu = 1000 / 165;
+clock_t fpsGame = 1000 / 60;
 const int award = 100;
 const int HEARTCNT = 10;
 
@@ -503,7 +503,8 @@ bool cheackUser()
 	{
 		if (!strcmp(temp->name, user->name) && !strcmp(temp->password, user->password))
 		{
-			temp->score = user->score;
+			if(user->score>temp->score)
+				temp->score = user->score;
 			user = temp;
 			user->points = 0;
 			return 1;
@@ -721,7 +722,6 @@ void gamePage()
 			}
 
 		}
-		
 		if (hurtStatue != 0)
 		{
 			putimage(0, 0, &red, SRCAND);
@@ -754,7 +754,6 @@ void gamePage()
 		freamTime = clock() - startTime;
 		if (fpsGame - freamTime > 0)
 			Sleep(fpsGame - freamTime);
-		printf("%d\n",freamTime);
 		FlushBatchDraw();
 		
 	}
@@ -872,6 +871,7 @@ item* itemUpdate(item* barrierItem,int& cnt,int category) //category 1为金币 2为
 		barrierItem = barrierItem->next;
 		free(toDelete);
 		cnt--;
+		PlaySound("../songs/zombieDied.wav", NULL, SND_ASYNC);
 	}
 	if (barrierItem != NULL && barrierItem->y >= 750 && barrierItem->y <= 800 && barrierItem->modle == steveModle&&jumpFlag==0)
 	{
@@ -904,6 +904,7 @@ item* itemUpdate(item* barrierItem,int& cnt,int category) //category 1为金币 2为
 				head->next = head->next->next;
 				free(toDelete);
 				cnt--;
+				PlaySound("../songs/zombieDied.wav", NULL, SND_ASYNC);
 			}
 		}
 		if (head->next != NULL && head->next->modle == steveModle&&jumpFlag == 0)
