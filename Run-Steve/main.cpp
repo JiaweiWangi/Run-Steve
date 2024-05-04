@@ -22,12 +22,18 @@ const int MAXGOLDNUM = 3; //最大金币数量
 const int MAXARROWNUM = 3; //最大箭数量
 const int MAXZOMBIENUM = 3; //最大僵尸数量
 
+
+
 // SETTINGS 随时间增加 部分属性会调整 即难度增大同时奖励积分增加
 int award = AWARDPOINS; // 奖励分数基准
 int heartCnt = HEARTCNT; //生命数
 int maxGoldNum = MAXGOLDNUM; //最大金币数量
 int maxArrowNum = MAXARROWNUM; //最大箭数量
 int maxZombieNum = MAXZOMBIENUM;  //最大僵尸数量
+double goldRate = 0.001; //金币生成概率/每列每帧
+double arrowRate = 0.001; //箭生成概率/每列每帧
+double zombieRate = 0.001; //僵尸生成概率/每列每帧
+double goldAppleRate = 0.0001; //无敌加速道具（金苹果）生成概率/每列每帧
 
 // 用于稳定帧率
 int startTime; // 某一帧的开始时间
@@ -120,8 +126,6 @@ int main()
 		menuPage();
 		gamePage();
 	}
-	
-	system("pause");
 }
 
 //主界面循环
@@ -712,24 +716,30 @@ void gamePage()
 
 		steveMove(steveLocate);
 		steveJump(steveLocate);
-	
-		int rand_number = rand() % 150 + 1;
-		if (goldCnt <= 3 && rand_number < 6)
+		
+
+		int rand_number = rand() % 100000 + 1;
+		//难度和奖励会随分数增加而增加
+		goldRate = 0.001+user->points*0.000001; 
+		arrowRate = 0.001 + user->points * 0.000001; 
+		zombieRate = 0.001 + user->points * 0.000001;
+
+		if (rand_number <goldRate*3*100000)
 		{
 			rand_number = rand_number % 3 + 1;
 			barrierGold = createItem(barrierGold,  rand_number , goldCnt);
 		}
-		else if (arrowCnt <= 2&&rand_number<12)
+		else if (rand_number<arrowRate*3*100000+ goldRate * 3 * 100000)
 		{
 			rand_number = rand_number % 3 + 1;
 			barrierArrow = createItem(barrierArrow, rand_number, arrowCnt);
 		}
-		else if (zombieCnt<=2&&rand_number<18)
+		else if (rand_number<zombieRate*3* 100000 + arrowRate * 3 * 100000 + goldRate * 3 * 100000)
 		{
 			rand_number = rand_number % 3 + 1;
 			barrierZombie = createItem(barrierZombie, rand_number, zombieCnt);
 		}
-		else if (goldAppleCnt<=1&&rand_number < 21)
+		else if (goldAppleCnt<=1&&rand_number < goldAppleRate*3* 100000 + zombieRate * 3 * 100000 + arrowRate * 3 * 100000 + goldRate * 3 * 100000)
 		{
 			rand_number = rand_number % 3 + 1;
 			barrierGoldApple = createItem(barrierGoldApple, rand_number, goldAppleCnt);
