@@ -41,6 +41,7 @@ int steveModle = 2; // steve当前所处的轨道 1 2 3（从左至右)
 int jumpFlag = 0; // 1 jumping;
 int attackFlag = 0; // 1 attacking
 int invincibleFlag = 0; // 是否处于无敌状态
+int invincibleStartTime;
 
 int zombieImgCnt = 0; // 当前播放僵尸的第x帧
 const int zombieNum = 14; // 僵尸动画帧数
@@ -811,6 +812,13 @@ void gamePage()
 			if (fpsGame - freamTime > 0)
 				Sleep(fpsGame - freamTime);
 		}
+		else
+		{
+			if (clock() - invincibleStartTime > 5000)
+			{
+				invincibleFlag = 0;
+			}
+		}
 		
 		FlushBatchDraw();
 		
@@ -953,6 +961,7 @@ item* itemUpdate(item* barrierItem,int& cnt,int category) //category 1为金币 2为
 		}	
 		if (category == 4&& !invincibleFlag)
 		{
+			invincibleStartTime = clock();
 			invincibleFlag = 1;
 			PlaySound("../songs/goldApple.wav", NULL, SND_ASYNC);
 		}
@@ -997,6 +1006,7 @@ item* itemUpdate(item* barrierItem,int& cnt,int category) //category 1为金币 2为
 				}
 				if (category == 4&&!invincibleFlag)
 				{
+					invincibleStartTime = clock();
 					invincibleFlag = 1;
 					PlaySound("../songs/goldApple.wav", NULL, SND_ASYNC);
 				}
