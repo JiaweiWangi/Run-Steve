@@ -22,7 +22,7 @@ const int MAXGOLDNUM = 3; //最大金币数量
 const int MAXARROWNUM = 3; //最大箭数量
 const int MAXZOMBIENUM = 3; //最大僵尸数量
 
-// SETTINGS
+// SETTINGS 随时间增加 部分属性会调整 即难度增大同时奖励积分增加
 int award = AWARDPOINS; // 奖励分数基准
 int heartCnt = HEARTCNT; //生命数
 int maxGoldNum = MAXGOLDNUM; //最大金币数量
@@ -44,8 +44,9 @@ int attackFlag = 0; // 1 attacking
 int zombieImgCnt = 0;
 const int zombieNum = 14;
 
-int hurtStatue;
-int awardGoldStatue;
+int hurtStatue=0;
+int awardGoldStatue=0;
+int awardZombieStatue=0;
 char Points[128];
 
 // 游戏界面物品动画的逐帧图片
@@ -60,6 +61,7 @@ IMAGE frameWiseArrow[120];
 IMAGE frameWiseArrow1[120];
 IMAGE frameWiseZombie[120];
 IMAGE frameWiseZombie1[120];
+IMAGE frameWiseApple[600];
 
 struct imageLocate
 {
@@ -572,9 +574,6 @@ void headText()
 //游戏循环
 void gamePage()
 {
-	hurtStatue = 0;
-	awardGoldStatue = 0;
-
 	int goldCnt = 0;
 	int arrowCnt = 0;
 	int zombieCnt = 0;
@@ -919,6 +918,8 @@ item* itemUpdate(item* barrierItem,int& cnt,int category) //category 1为金币 2为
 		barrierItem = barrierItem->next;
 		free(toDelete);
 		cnt--;
+		awardZombieStatue = 1;
+		user->points += award * 2;
 		PlaySound("../songs/zombieDied.wav", NULL, SND_ASYNC);
 	}
 	if (barrierItem != NULL && barrierItem->y >= 750 && barrierItem->y <= 800 && barrierItem->modle == steveModle&&jumpFlag==0)
@@ -952,6 +953,8 @@ item* itemUpdate(item* barrierItem,int& cnt,int category) //category 1为金币 2为
 				head->next = head->next->next;
 				free(toDelete);
 				cnt--;
+				awardZombieStatue = 3;
+				user->points += award * 2;
 				PlaySound("../songs/zombieDied.wav", NULL, SND_ASYNC);
 			}
 		}
@@ -1034,22 +1037,37 @@ void heartUpdate(IMAGE heart[2], int heartCnt)
 void pointsUpdate() 
 {
 	static int y = 90;
-	if (awardGoldStatue == 1)
+	char addPoints[20];
+	if (awardGoldStatue == 1|| awardZombieStatue==1)
 	{
 		y = 90;
 	}
 	sprintf_s(Points, "Points:%04d", user->points);
+	if (awardGoldStatue != 0)
+		sprintf_s(addPoints, "+%d", award);
+	else if (awardZombieStatue!=0)
+		sprintf_s(addPoints, "+%d", award*2);
 	settextstyle(35, 0, _T("Consolas"));
 	outtextxy(300, 50, _T(Points));
 	if (awardGoldStatue != 0)
 	{
-		outtextxy(410, y, _T("+100"));
+		outtextxy(410, y, addPoints);
 		awardGoldStatue++;
+		y--;
+	}
+	if (awardZombieStatue != 0)
+	{
+		outtextxy(410, y, addPoints);
+		awardZombieStatue++;
 		y--;
 	}
 	if (awardGoldStatue == 20)
 	{
 		awardGoldStatue=0;
+	}
+	if (awardZombieStatue == 20)
+	{
+		awardZombieStatue = 0;
 	}
 	user->points++;
 }
