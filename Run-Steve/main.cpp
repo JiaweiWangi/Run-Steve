@@ -10,10 +10,10 @@
 
 #define WIDTH 540
 #define HEIGHT 920
-FILE* dataFile;
+FILE* dataFile; // 储存用户数据的文件
 ExMessage msg;
-clock_t fpsMenu = 1000 / 165;
-clock_t fpsGame = 1000 / 60;
+clock_t fpsMenu = 1000 / 165; // 主页每一帧的时间
+clock_t fpsGame = 1000 / 60;  // 游戏页面每一帧的时间
 
 //默认SETTINGS数值
 const int AWARDPOINS = 100; // 奖励分数
@@ -29,14 +29,15 @@ int maxGoldNum = MAXGOLDNUM; //最大金币数量
 int maxArrowNum = MAXARROWNUM; //最大箭数量
 int maxZombieNum = MAXZOMBIENUM;  //最大僵尸数量
 
-int startTime;
-int freamTime;
+// 用于稳定帧率
+int startTime; // 某一帧的开始时间
+int freamTime; // 加载某一帧所花费的时间
 
 int menuStatue; //0为初始页面 1为登录页面 2为注册页面
 int logORegStatue; //0为初始 1为输入账号状态 2为输入密码状态 3为输入完成状态
 int userStatue; //0为未登录 1为登录成功 2为登录失败 3为注册成功
 
-int steveModle = 2;
+int steveModle = 2; // steve当前所处的轨道 1 2 3（从左至右)
 int jumpFlag = 0; // 1 jumping;
 int attackFlag = 0; // 1 attacking
 
@@ -46,7 +47,6 @@ const int zombieNum = 14;
 int hurtStatue;
 int awardGoldStatue;
 char Points[128];
-
 
 // 游戏界面物品动画的逐帧图片
 // 由于loadimage缩放图片效率过低
@@ -748,8 +748,9 @@ void gamePage()
 			j = 0;
 
 		barrierGold = itemUpdate(barrierGold, goldCnt,1);
+		barrierZombie = itemUpdate(barrierZombie, zombieCnt, 3);
 		barrierArrow = itemUpdate(barrierArrow,arrowCnt,2);
-		barrierZombie = itemUpdate(barrierZombie,zombieCnt, 3);
+		
 
 		if (!attackFlag)
 		{
