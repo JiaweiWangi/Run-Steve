@@ -33,19 +33,20 @@ int maxZombieNum = MAXZOMBIENUM;  //最大僵尸数量
 int startTime; // 某一帧的开始时间
 int freamTime; // 加载某一帧所花费的时间
 
-int menuStatue; //0为初始页面 1为登录页面 2为注册页面
-int logORegStatue; //0为初始 1为输入账号状态 2为输入密码状态 3为输入完成状态
-int userStatue; //0为未登录 1为登录成功 2为登录失败 3为注册成功
+int menuStatus; //0为初始页面 1为登录页面 2为注册页面
+int logORegStatus; //0为初始 1为输入账号状态 2为输入密码状态 3为输入完成状态
+int userStatus; //0为未登录 1为登录成功 2为登录失败 3为注册成功
 
 int steveModle = 2; // steve当前所处的轨道 1 2 3（从左至右)
 int jumpFlag = 0; // 1 jumping;
 int attackFlag = 0; // 1 attacking
+int invincibleFlag = 0; // 是否处于无敌状态
 
-int zombieImgCnt = 0;
-const int zombieNum = 14;
+int zombieImgCnt = 0; // 当前播放僵尸的第x帧
+const int zombieNum = 14; // 僵尸动画帧数
 
-int hurtStatue=0;
-int awardGoldStatue=0;
+int hurtStatus=0;
+int awardGoldStatus=0;
 int awardZombieStatue=0;
 char Points[128];
 
@@ -61,7 +62,8 @@ IMAGE frameWiseArrow[120];
 IMAGE frameWiseArrow1[120];
 IMAGE frameWiseZombie[120];
 IMAGE frameWiseZombie1[120];
-IMAGE frameWiseApple[600];
+IMAGE frameWiseGoldApple[120];
+IMAGE frameWiseGoldApple1[120];
 
 struct imageLocate
 {
@@ -74,14 +76,9 @@ struct item
 {
 	int x;
 	int y;
-	int centerX;
-	int centerY;
 	int speed;
 	int modle; //为出现在第几列 1 2 3
-	IMAGE img;
 	item* next;
-	item(IMAGE img) :img(img), x((WIDTH - img.getwidth()) / 2), y((HEIGHT - img.getheight()) / 2), centerX((x + img.getwidth()) / 2), centerY((y + img.getheight()) / 2),speed(0),next(NULL),modle(0){}
-
 };
 
 struct newUser
@@ -107,7 +104,7 @@ void headText();
 void gamePage();
 void steveMove(imageLocate& steveLocate);
 void steveJump(imageLocate& steveLocate);
-item* createItem(item*,IMAGE&,int,int&);
+item* createItem(item*,int,int&);
 item* itemUpdate(item* barrierGold,int& cnt,int category);
 void heartUpdate(IMAGE heart[2], int heartCnt);
 void pointsUpdate();
@@ -136,9 +133,9 @@ void menuPage()
 	user->points = 0;
 
 
-	menuStatue = 0; 
-	logORegStatue = 0; 
-	userStatue = 0; 
+	menuStatus = 0; 
+	logORegStatus = 0; 
+	userStatus = 0; 
 
 	const int menuPageVideoNum = 897;
 	imageLocate runSteveLovate(12, 100);
@@ -228,7 +225,7 @@ void menuPage()
 		if (imageButtonDetect(startLocate,start))
 		{
 			
-			if (msg.message == WM_LBUTTONDOWN && (userStatue == 1 || userStatue == 3))
+			if (msg.message == WM_LBUTTONDOWN && (userStatus == 1 || userStatus == 3))
 			{
 				PlaySound("../songs/button.wav", NULL, SND_ASYNC);
 				break;
@@ -246,8 +243,8 @@ void menuPage()
 		{
 			if (msg.message == WM_LBUTTONDOWN)
 			{
-				menuStatue = 1;
-				logORegStatue = 1;
+				menuStatus = 1;
+				logORegStatus = 1;
 				PlaySound("../songs/button.wav", NULL, SND_ASYNC);
 			}
 			else
@@ -267,8 +264,8 @@ void menuPage()
 		{
 			if (msg.message == WM_LBUTTONDOWN)
 			{
-				logORegStatue = 1;
-				menuStatue = 2;
+				logORegStatus = 1;
+				menuStatus = 2;
 				PlaySound("../songs/button.wav", NULL, SND_ASYNC);
 			}
 			else
@@ -284,24 +281,24 @@ void menuPage()
 		}
 		putimage(runSteveLovate.x, runSteveLovate.y, &runSteve_1, SRCAND);
 		putimage(runSteveLovate.x, runSteveLovate.y, &runSteve, SRCPAINT);
-		if (menuStatue==1)
+		if (menuStatus==1)
 		{
 			
 			loginAndRegisterPage(loginPage);
-			if (logORegStatue ==3)
+			if (logORegStatus ==3)
 			{
 				if (cheackUser())
-					userStatue = 1;
+					userStatus = 1;
 				else
-					userStatue = 2;
+					userStatus = 2;
 			}
 		}
-		else if (menuStatue == 2)
+		else if (menuStatus == 2)
 		{
 			loginAndRegisterPage(registerPage);
-			if (logORegStatue == 3)
+			if (logORegStatus == 3)
 			{
-				userStatue = 3;
+				userStatus = 3;
 			}
 		}
 		headText();	
@@ -333,7 +330,7 @@ void loginAndRegisterPage(IMAGE& page)
 	char ch[2];
 	ch[1] = '\0';
 
-	if (logORegStatue==1)
+	if (logORegStatus==1)
 	{
 		putimage(loginPageLocate.x, loginPageLocate.y, &page);
 		if (msg.message == WM_KEYDOWN)
@@ -347,7 +344,7 @@ void loginAndRegisterPage(IMAGE& page)
 			}
 			else if (ch[0] == 13)
 			{
-				logORegStatue = 2;
+				logORegStatus = 2;
 			}
 			else
 			{
@@ -373,7 +370,7 @@ void loginAndRegisterPage(IMAGE& page)
 		}
 		outtextxy(userLocate.x, userLocate.y, user->name);
 	}
-	else if (logORegStatue==2)
+	else if (logORegStatus==2)
 	{
 		putimage(loginPageLocate.x, loginPageLocate.y, &page);
 		if (msg.message == WM_KEYDOWN)
@@ -386,12 +383,12 @@ void loginAndRegisterPage(IMAGE& page)
 			}
 			else if (ch[0] == 13)
 			{
-				logORegStatue = 3;
-				if (menuStatue == 2)  //当为注册时
+				logORegStatus = 3;
+				if (menuStatus == 2)  //当为注册时
 				{
-					userStatue = 3;
+					userStatus = 3;
 				}
-				menuStatue = 0;
+				menuStatus = 0;
 			}
 			else
 			{
@@ -550,7 +547,7 @@ void headText()
 	char s2[50] = "Login failed, Please try again";
 	char s3[50] = "";
 	char s4[50] = "Account not logged in";
-	switch (userStatue)
+	switch (userStatus)
 	{
 	case 0:
 		outtextxy((WIDTH - textwidth(s4)) / 2, 200, s4);
@@ -577,6 +574,7 @@ void gamePage()
 	int goldCnt = 0;
 	int arrowCnt = 0;
 	int zombieCnt = 0;
+	int goldAppleCnt = 0;
 	int i = 0;
 	int j = 0;
 	int m = 0;
@@ -618,6 +616,8 @@ void gamePage()
 		loadimage(&frameWiseGold1[i], "../image/star/gold.png", size, size, true);
 		loadimage(&frameWiseArrow[i], "../image/arrow/arrow1.png", size, size, true);
 		loadimage(&frameWiseArrow1[i], "../image/arrow/arrow.png", size, size, true);
+		loadimage(&frameWiseGoldApple[i], "../image/props/goldApple1.png", size, size, true);
+		loadimage(&frameWiseGoldApple1[i], "../image/props/goldApple.png", size, size, true);
 		char file_name[128], file_name1[128];
 		sprintf_s(file_name, "../image/zombie/zombie%02d.jpg", zombieImgCnt);
 		sprintf_s(file_name1, "../image/zombie1/zombie1%02d.jpg", zombieImgCnt);
@@ -693,6 +693,7 @@ void gamePage()
 	item* barrierGold = NULL;
 	item* barrierArrow = NULL;
 	item* barrierZombie = NULL;
+	item* barrierGoldApple = NULL;
 	srand((unsigned int)time(0));
 	//MyClass* obj = new MyClass(args);
 
@@ -711,21 +712,26 @@ void gamePage()
 		steveMove(steveLocate);
 		steveJump(steveLocate);
 	
-		int rand_nuber = rand() % 150 + 1;
-		if (goldCnt <= 3 && rand_nuber < 6)
+		int rand_number = rand() % 150 + 1;
+		if (goldCnt <= 3 && rand_number < 6)
 		{
-			rand_nuber = rand_nuber % 3 + 1;
-			barrierGold = createItem(barrierGold, gold[0], rand_nuber , goldCnt);
+			rand_number = rand_number % 3 + 1;
+			barrierGold = createItem(barrierGold,  rand_number , goldCnt);
 		}
-		else if (arrowCnt <= 2&&rand_nuber<12)
+		else if (arrowCnt <= 2&&rand_number<12)
 		{
-			rand_nuber = rand_nuber % 3 + 1;
-			barrierArrow = createItem(barrierArrow, arrow[0], rand_nuber, arrowCnt);
+			rand_number = rand_number % 3 + 1;
+			barrierArrow = createItem(barrierArrow, rand_number, arrowCnt);
 		}
-		else if (zombieCnt<=2&&rand_nuber<18)
+		else if (zombieCnt<=2&&rand_number<18)
 		{
-			rand_nuber = rand_nuber % 3 + 1;
-			barrierZombie = createItem(barrierZombie, zomebie[0][0], rand_nuber, zombieCnt);
+			rand_number = rand_number % 3 + 1;
+			barrierZombie = createItem(barrierZombie, rand_number, zombieCnt);
+		}
+		else if (goldAppleCnt<=1&&rand_number < 21)
+		{
+			rand_number = rand_number % 3 + 1;
+			barrierGoldApple = createItem(barrierGoldApple, rand_number, goldAppleCnt);
 		}
 			
 		putimage(0, -50, &sky[n/100]);
@@ -749,6 +755,7 @@ void gamePage()
 		barrierGold = itemUpdate(barrierGold, goldCnt,1);
 		barrierZombie = itemUpdate(barrierZombie, zombieCnt, 3);
 		barrierArrow = itemUpdate(barrierArrow,arrowCnt,2);
+		barrierGoldApple = itemUpdate(barrierGoldApple, goldAppleCnt, 4);
 		
 
 		if (!attackFlag)
@@ -769,12 +776,12 @@ void gamePage()
 			}
 
 		}
-		if (hurtStatue != 0)
+		if (hurtStatus != 0)
 		{
 			putimage(0, 0, &red, SRCAND);
-			hurtStatue++;
-			if (hurtStatue == 6)
-				hurtStatue = 0;
+			hurtStatus++;
+			if (hurtStatus == 6)
+				hurtStatus = 0;
 		}
 	
 		i++;
@@ -798,9 +805,13 @@ void gamePage()
 			break;
 		}
 
-		freamTime = clock() - startTime;
-		if (fpsGame - freamTime > 0)
-			Sleep(fpsGame - freamTime);
+		if (!invincibleFlag)
+		{
+			freamTime = clock() - startTime;
+			if (fpsGame - freamTime > 0)
+				Sleep(fpsGame - freamTime);
+		}
+		
 		FlushBatchDraw();
 		
 	}
@@ -870,10 +881,10 @@ void steveJump(imageLocate& steveLocate)
 	
 }
 
-item* createItem(item* head,IMAGE &img,int modle,int& cnt)
+item* createItem(item* head,int modle,int& cnt)
 {
 	cnt++;
-	item* p = new item(img);
+	item* p = new item();
 	p->next = NULL;
 	p->speed = 6;
 	p->y = 200;
@@ -931,15 +942,20 @@ item* itemUpdate(item* barrierItem,int& cnt,int category) //category 1为金币 2为
 		if (category == 1)
 		{
 			user->points += award;
-			awardGoldStatue = 1;
+			awardGoldStatus = 1;
 			PlaySound("../songs/getGold.wav", NULL, SND_ASYNC);
 		}
-		if (category == 2||category==3)
+		if ((category == 2||category==3)&&!invincibleFlag)
 		{
 			heartCnt--;
-			hurtStatue = 1;
+			hurtStatus = 1;
 			PlaySound("../songs/hurt.wav", NULL, SND_ASYNC);
 		}	
+		if (category == 4&& !invincibleFlag)
+		{
+			invincibleFlag = 1;
+			PlaySound("../songs/goldApple.wav", NULL, SND_ASYNC);
+		}
 	}
 	item* head = barrierItem;
 	int size;
@@ -969,15 +985,20 @@ item* itemUpdate(item* barrierItem,int& cnt,int category) //category 1为金币 2为
 				if (category == 1)
 				{
 					user->points += award;
-					awardGoldStatue = 1;
+					awardGoldStatus = 1;
 					PlaySound("../songs/getGold.wav", NULL, SND_ASYNC);
 				}
 				
-				if (category == 2||category==3)
+				if ((category == 2 || category == 3) && !invincibleFlag)
 				{
 					heartCnt--;
-					hurtStatue = 1;
+					hurtStatus = 1;
 					PlaySound("../songs/hurt.wav", NULL, SND_ASYNC);
+				}
+				if (category == 4&&!invincibleFlag)
+				{
+					invincibleFlag = 1;
+					PlaySound("../songs/goldApple.wav", NULL, SND_ASYNC);
 				}
 			}
 		}
@@ -1018,6 +1039,11 @@ item* itemUpdate(item* barrierItem,int& cnt,int category) //category 1为金币 2为
 			putimage(head->x-size, head->y, &frameWiseZombie[imageCnt], SRCAND);
 			putimage(head->x -size, head->y, &frameWiseZombie1[imageCnt], SRCPAINT);
 		}
+		else if (category == 4)
+		{
+			putimage(head->x , head->y, &frameWiseGoldApple[imageCnt], SRCAND);
+			putimage(head->x , head->y, &frameWiseGoldApple1[imageCnt], SRCPAINT);
+		}
 		head = head->next;
 	}
 	return barrierItem;
@@ -1038,21 +1064,21 @@ void pointsUpdate()
 {
 	static int y = 90;
 	char addPoints[20];
-	if (awardGoldStatue == 1|| awardZombieStatue==1)
+	if (awardGoldStatus == 1|| awardZombieStatue==1)
 	{
 		y = 90;
 	}
 	sprintf_s(Points, "Points:%04d", user->points);
-	if (awardGoldStatue != 0)
+	if (awardGoldStatus != 0)
 		sprintf_s(addPoints, "+%d", award);
 	else if (awardZombieStatue!=0)
 		sprintf_s(addPoints, "+%d", award*2);
 	settextstyle(35, 0, _T("Consolas"));
 	outtextxy(300, 50, _T(Points));
-	if (awardGoldStatue != 0)
+	if (awardGoldStatus != 0)
 	{
 		outtextxy(410, y, addPoints);
-		awardGoldStatue++;
+		awardGoldStatus++;
 		y--;
 	}
 	if (awardZombieStatue != 0)
@@ -1061,9 +1087,9 @@ void pointsUpdate()
 		awardZombieStatue++;
 		y--;
 	}
-	if (awardGoldStatue == 20)
+	if (awardGoldStatus == 20)
 	{
-		awardGoldStatue=0;
+		awardGoldStatus=0;
 	}
 	if (awardZombieStatue == 20)
 	{
