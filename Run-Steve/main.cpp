@@ -18,20 +18,15 @@ clock_t fpsGame = 1000 / 60;  // 游戏页面每一帧的时间
 //默认SETTINGS数值
 const int AWARDPOINS = 100; // 奖励分数
 const int HEARTCNT = 5; //生命数
-const int MAXGOLDNUM = 3; //最大金币数量
-const int MAXARROWNUM = 3; //最大箭数量
-const int MAXZOMBIENUM = 3; //最大僵尸数量
 
 // SETTINGS 随时间增加 部分属性会调整 即难度增大同时奖励积分增加
 int award = AWARDPOINS; // 奖励分数基准
 int heartCnt = HEARTCNT; //生命数
-int maxGoldNum = MAXGOLDNUM; //最大金币数量
-int maxArrowNum = MAXARROWNUM; //最大箭数量
-int maxZombieNum = MAXZOMBIENUM;  //最大僵尸数量
 double goldRate = 0.001; //金币生成概率/每列每帧
 double arrowRate = 0.001; //箭生成概率/每列每帧
 double zombieRate = 0.001; //僵尸生成概率/每列每帧
-double goldAppleRate = 0.0001; //无敌加速道具（金苹果）生成概率/每列每帧
+double goldAppleRate = 0.0003; //无敌加速道具（金苹果）生成概率/每列每帧
+double heartRate = 0.0003; //回血道具生成概率/每列每帧
 
 // 用于稳定帧率
 int startTime; // 某一帧的开始时间
@@ -69,6 +64,9 @@ IMAGE frameWiseZombie[120];
 IMAGE frameWiseZombie1[120];
 IMAGE frameWiseGoldApple[120];
 IMAGE frameWiseGoldApple1[120];
+IMAGE frameWiseHeart[120];
+IMAGE frameWiseHeart1[120];
+
 
 struct imageLocate
 {
@@ -104,12 +102,14 @@ int goldCnt = 0;
 int arrowCnt = 0;
 int zombieCnt = 0;
 int goldAppleCnt = 0;
+int heartItemCnt = 0;
 
 // 初始化生成物链表
-item* barrierGold = NULL;
-item* barrierArrow = NULL;
-item* barrierZombie = NULL;
-item* barrierGoldApple = NULL;
+item* itemGold = NULL;
+item* itemArrow = NULL;
+item* itemZombie = NULL;
+item* itemGoldApple = NULL;
+item* itemHeart = NULL;
 
 void menuPage(); // 主界面循环
 bool imageButtonDetect(imageLocate& locate, IMAGE& image); // 检测鼠标点击位置是否在某个图像上
@@ -124,7 +124,7 @@ void steveJump(imageLocate& steveLocate); // 史蒂夫跳跃检测
 void creatAllItem(); // 所有生成物的创建
 void updateAllItem(); // 所有生成物的更新
 item* createItem(item*,int,int&); // 创建生成物链表
-item* itemUpdate(item* barrierGold,int& cnt,int category); // 更新生成物链表 并将其putimage
+item* itemUpdate(item* itemGold,int& cnt,int category); // 更新生成物链表 并将其putimage
 void heartUpdate(IMAGE heart[2], int heartCnt); // 玩家血量更新
 void pointsUpdate(); // 玩家分数更新
 void drawRanking(); // 游戏排行榜绘制
@@ -635,6 +635,8 @@ void gamePage()
 		loadimage(&frameWiseArrow1[i], "../image/arrow/arrow.png", size, size, true);
 		loadimage(&frameWiseGoldApple[i], "../image/props/goldApple1.png", size, size, true);
 		loadimage(&frameWiseGoldApple1[i], "../image/props/goldApple.png", size, size, true);
+		loadimage(&frameWiseHeart[i], "../image/heart/heart1.png", size, size, true);
+		loadimage(&frameWiseHeart1[i], "../image/heart/heart.png", size, size, true);
 		sprintf_s(file_name, "../image/zombie/zombie%02d.jpg", zombieImgCnt);
 		sprintf_s(file_name1, "../image/zombie1/zombie1%02d.jpg", zombieImgCnt);
 		zombieImgCnt++;
@@ -880,31 +882,37 @@ void creatAllItem()
 	if (rand_number < goldRate * 3 * 100000)
 	{
 		rand_number = rand_number % 3 + 1;
-		barrierGold = createItem(barrierGold, rand_number, goldCnt);
+		itemGold = createItem(itemGold, rand_number, goldCnt);
 	}
 	else if (rand_number < arrowRate * 3 * 100000 + goldRate * 3 * 100000)
 	{
 		rand_number = rand_number % 3 + 1;
-		barrierArrow = createItem(barrierArrow, rand_number, arrowCnt);
+		itemArrow = createItem(itemArrow, rand_number, arrowCnt);
 	}
 	else if (rand_number < zombieRate * 3 * 100000 + arrowRate * 3 * 100000 + goldRate * 3 * 100000)
 	{
 		rand_number = rand_number % 3 + 1;
-		barrierZombie = createItem(barrierZombie, rand_number, zombieCnt);
+		itemZombie = createItem(itemZombie, rand_number, zombieCnt);
 	}
 	else if (goldAppleCnt <= 1 && rand_number < goldAppleRate * 3 * 100000 + zombieRate * 3 * 100000 + arrowRate * 3 * 100000 + goldRate * 3 * 100000)
 	{
 		rand_number = rand_number % 3 + 1;
-		barrierGoldApple = createItem(barrierGoldApple, rand_number, goldAppleCnt);
+		itemGoldApple = createItem(itemGoldApple, rand_number, goldAppleCnt);
+	}
+	else if (heartItemCnt <= 1 && rand_number < heartRate * 3 * 100000 + goldAppleRate * 3 * 100000 + zombieRate * 3 * 100000 + arrowRate * 3 * 100000 + goldRate * 3 * 100000)
+	{
+		rand_number = rand_number % 3 + 1;
+		itemHeart = createItem(itemHeart, rand_number, heartItemCnt);
 	}
 }
 
 void updateAllItem()
 {
-	barrierGold = itemUpdate(barrierGold, goldCnt, 1);
-	barrierZombie = itemUpdate(barrierZombie, zombieCnt, 3);
-	barrierArrow = itemUpdate(barrierArrow, arrowCnt, 2);
-	barrierGoldApple = itemUpdate(barrierGoldApple, goldAppleCnt, 4);
+	itemGold = itemUpdate(itemGold, goldCnt, 1);
+	itemZombie = itemUpdate(itemZombie, zombieCnt, 3);
+	itemArrow = itemUpdate(itemArrow, arrowCnt, 2);
+	itemGoldApple = itemUpdate(itemGoldApple, goldAppleCnt, 4);
+	itemHeart = itemUpdate(itemHeart, heartItemCnt, 5);
 }
 
 item* createItem(item* head,int modle,int& cnt)
@@ -983,6 +991,11 @@ item* itemUpdate(item* barrierItem,int& cnt,int category) //category 1为金币 2为
 			invincibleFlag = 1;
 			PlaySound("../songs/goldApple.wav", NULL, SND_ASYNC);
 		}
+		if (category == 5)
+		{
+			PlaySound("../songs/getGold.wav", NULL, SND_ASYNC);
+			heartCnt++;
+		}
 	}
 	item* head = barrierItem;
 	int size;
@@ -1028,6 +1041,11 @@ item* itemUpdate(item* barrierItem,int& cnt,int category) //category 1为金币 2为
 					invincibleFlag = 1;
 					PlaySound("../songs/goldApple.wav", NULL, SND_ASYNC);
 				}
+				if (category == 5)
+				{
+					PlaySound("../songs/getGold.wav", NULL, SND_ASYNC);
+					heartCnt++;
+				}
 			}
 		}
 
@@ -1071,6 +1089,11 @@ item* itemUpdate(item* barrierItem,int& cnt,int category) //category 1为金币 2为
 		{
 			putimage(head->x , head->y, &frameWiseGoldApple[imageCnt], SRCAND);
 			putimage(head->x , head->y, &frameWiseGoldApple1[imageCnt], SRCPAINT);
+		}
+		else if(category==5)
+		{
+			putimage(head->x, head->y, &frameWiseHeart[imageCnt], SRCAND);
+			putimage(head->x, head->y, &frameWiseHeart1[imageCnt], SRCPAINT);
 		}
 		head = head->next;
 	}
