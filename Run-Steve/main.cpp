@@ -47,7 +47,7 @@ int steveModle = 2; // steve当前所处的轨道 1 2 3（从左至右)
 int jumpFlag = 0; // 1 jumping;
 int attackFlag = 0; // 1 attacking
 int invincibleFlag = 0; // 是否处于无敌状态
-int invincibleStartTime;
+int invincibleStartTime; // 无敌时间
 
 int zombieImgCnt = 0; // 当前播放僵尸的第x帧
 const int zombieNum = 14; // 僵尸动画帧数
@@ -77,7 +77,7 @@ struct imageLocate
 	int x;
 	int y;
 	imageLocate(int x, int y) : x(x), y(y) {}
-};  // 用于储存图像坐标
+};  // 用于储存静态（不需要放大的）图像坐标
 
 struct item
 {
@@ -135,19 +135,24 @@ void menuPage()
 	user->name[0] = '\0';
 	user->password[0] = '\0';
 	user->points = 0;
+	head = readUserInfo();
 
-
+	//状态初始化
 	menuStatus = 0; 
 	logORegStatus = 0; 
 	userStatus = 0; 
+	steveModle = 2;
+	jumpFlag = 0;
+	attackFlag = 0;
+	invincibleFlag = 0;
 
-	const int menuPageVideoNum = 897;
+	//规定一些静态图片的位置
 	imageLocate runSteveLovate(12, 100);
 	imageLocate startLocate(132, 433);
 	imageLocate loginLocate(110, 580);
 	imageLocate registerLocate(21, 700);
 
-
+	// 主界面图片声明（由于主界面和游戏界面图片较多，实测Easy有加载图片上限，故而都用局部变量）
 	IMAGE menu;
 	IMAGE login;
 	IMAGE register1;
@@ -166,20 +171,17 @@ void menuPage()
 	IMAGE lStart_1;
 	IMAGE loginPage;
 	IMAGE registerPage;
-	
-	head = readUserInfo();
-
-	
 	char file_name[128];
+	const int menuPageVideoNum = 897;
 	IMAGE menuPageVideoImage[menuPageVideoNum];
 
+	// 主界面图片加载
 	for (int i = 0; i < menuPageVideoNum - 1; i++)
 	{
 		sprintf_s(file_name, "../image/menupagevideo/page%03d.jpg", i);
 		//printf(file_name);
 		loadimage(&menuPageVideoImage[i], file_name);
 	}
-
 	loadimage(&login, _T("../image/title/login.png"));
 	loadimage(&register1, _T("../image/title/register.png"));
 	loadimage(&start, _T("../image/title/start.png"));
@@ -196,13 +198,8 @@ void menuPage()
 	loadimage(&lStart_1, _T("../image/title/lstart_1.png"));
 	loadimage(&loginPage, _T("../image/title/loginpage.png"));
 	loadimage(&registerPage, _T("../image/title/registerpage.png"));
-
 	int num = 0;
-	
-	int loginOrRegisterPageFlag = 0; // 0为主界面 1为登录界面 2为注册界面
-	bool loginOrRegisterPasswordFlag = 0;
-	bool loginFlag = 0; //1为结束输入
-	int loginStatu = 0; //0为初始状况，1为登录成功，2为登录失败，3为注册成功
+
 
 	
 	settextstyle(35, 0, _T("Consolas"));
