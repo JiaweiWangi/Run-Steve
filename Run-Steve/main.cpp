@@ -353,7 +353,7 @@ void loginAndRegisterPage(IMAGE& page)
 		{
 
 			ch[0] = msg.vkcode;
-			printf("%d", ch[0]);
+			//printf("%d", ch[0]);
 			if (ch[0] == 8 && strlen(user->name) > 0)
 			{
 				user->name[strlen(user->name) - 1] = '\0';
@@ -1050,7 +1050,7 @@ item* itemUpdate(item* barrierItem,int& cnt,int category) //category 1Îª½ð±Ò 2Îª
 		}
 
 		head->y += head->y*0.015;
-		printf("%d\n", head -> speed);
+		//printf("%d\n", head -> speed);
 
 		if (head->modle == 1)
 		{
