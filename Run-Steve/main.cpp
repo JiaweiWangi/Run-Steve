@@ -22,8 +22,6 @@ const int MAXGOLDNUM = 3; //最大金币数量
 const int MAXARROWNUM = 3; //最大箭数量
 const int MAXZOMBIENUM = 3; //最大僵尸数量
 
-
-
 // SETTINGS 随时间增加 部分属性会调整 即难度增大同时奖励积分增加
 int award = AWARDPOINS; // 奖励分数基准
 int heartCnt = HEARTCNT; //生命数
