@@ -77,7 +77,7 @@ struct imageLocate
 	int x;
 	int y;
 	imageLocate(int x, int y) : x(x), y(y) {}
-};
+};  // 用于储存图像坐标
 
 struct item
 {
@@ -86,7 +86,7 @@ struct item
 	int speed;
 	int modle; //为出现在第几列 1 2 3
 	item* next;
-};
+}; //用链表来储存游戏生成物
 
 struct newUser
 {
@@ -96,26 +96,26 @@ struct newUser
 	int points; //当前分数
 	newUser* next; 
 	newUser() : name("\0"),password("\0"),score(0),points(0),next(NULL) {}
-};
+}; // 链表来储存用户信息
 
-newUser* head=NULL;
-newUser* user;
+newUser* head=NULL; // 储存用户信息的链表
+newUser* user; // 当前登录的用户
 
-void menuPage();
-bool imageButtonDetect(imageLocate& locate, IMAGE& image);
-void loginAndRegisterPage(IMAGE& page);
-newUser* readUserInfo();
-void updateUserFile();
-bool cheackUser();
-void headText();
-void gamePage();
-void steveMove(imageLocate& steveLocate);
-void steveJump(imageLocate& steveLocate);
-item* createItem(item*,int,int&);
-item* itemUpdate(item* barrierGold,int& cnt,int category);
-void heartUpdate(IMAGE heart[2], int heartCnt);
-void pointsUpdate();
-void drawRanking();
+void menuPage(); // 主界面循环
+bool imageButtonDetect(imageLocate& locate, IMAGE& image); // 检测鼠标点击位置是否在某个图像上
+void loginAndRegisterPage(IMAGE& page);  // 登录和注册页面
+newUser* readUserInfo(); // 将本地用户存档信息读取至链表
+void updateUserFile(); // 将游戏成绩信息存储至本地
+bool cheackUser(); // 登录时检测输入的账户与本地存储的账户是否一致
+void headText(); // 主界面显示登录状态
+void gamePage(); // 游戏界面循环
+void steveMove(imageLocate& steveLocate); // 史蒂夫移动/攻击状态检测
+void steveJump(imageLocate& steveLocate); // 史蒂夫跳跃检测
+item* createItem(item*,int,int&); // 创建生成物链表
+item* itemUpdate(item* barrierGold,int& cnt,int category); // 更新生成物链表 并将其putimage
+void heartUpdate(IMAGE heart[2], int heartCnt); // 玩家血量更新
+void pointsUpdate(); // 玩家分数更新
+void drawRanking(); // 游戏排行榜绘制
 
 
 int main()
@@ -128,7 +128,6 @@ int main()
 	}
 }
 
-//主界面循环
 void menuPage()
 {
 	//用户信息初始化
@@ -544,7 +543,7 @@ bool cheackUser()
 	return 0;
 }
 
-void headText()
+void headText() 
 {
 	setbkmode(TRANSPARENT);
 	settextstyle(25, 0, _T("Consolas"));
