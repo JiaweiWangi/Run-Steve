@@ -12,7 +12,7 @@
 #define HEIGHT 920
 FILE* dataFile; // 储存用户数据的文件
 ExMessage msg;
-clock_t fpsMenu = 1000 / 165; // 主页每一帧的时间
+clock_t fpsMenu = 1000 / 60; // 主页每一帧的时间
 clock_t fpsGame = 1000 / 60;  // 游戏页面每一帧的时间
 
 //默认SETTINGS数值
@@ -184,7 +184,7 @@ void menuPage()
 	IMAGE loginPage;
 	IMAGE registerPage;
 	char file_name[128];
-	const int menuPageVideoNum = 897;
+	const int menuPageVideoNum = 240;
 	IMAGE menuPageVideoImage[menuPageVideoNum];
 
 	// 主界面图片加载
