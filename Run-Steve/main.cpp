@@ -101,6 +101,18 @@ struct newUser
 newUser* head=NULL; // 储存用户信息的链表
 newUser* user; // 当前登录的用户
 
+// 当前生成物数量初始化
+int goldCnt = 0;
+int arrowCnt = 0;
+int zombieCnt = 0;
+int goldAppleCnt = 0;
+
+// 初始化生成物链表
+item* barrierGold = NULL;
+item* barrierArrow = NULL;
+item* barrierZombie = NULL;
+item* barrierGoldApple = NULL;
+
 void menuPage(); // 主界面循环
 bool imageButtonDetect(imageLocate& locate, IMAGE& image); // 检测鼠标点击位置是否在某个图像上
 void loginAndRegisterPage(IMAGE& page);  // 登录和注册页面
@@ -111,6 +123,8 @@ void headText(); // 主界面显示登录状态
 void gamePage(); // 游戏界面循环
 void steveMove(imageLocate& steveLocate); // 史蒂夫移动/攻击状态检测
 void steveJump(imageLocate& steveLocate); // 史蒂夫跳跃检测
+void creatAllItem(); // 所有生成物的创建
+void updateAllItem(); // 所有生成物的更新
 item* createItem(item*,int,int&); // 创建生成物链表
 item* itemUpdate(item* barrierGold,int& cnt,int category); // 更新生成物链表 并将其putimage
 void heartUpdate(IMAGE heart[2], int heartCnt); // 玩家血量更新
@@ -198,10 +212,8 @@ void menuPage()
 	loadimage(&lStart_1, _T("../image/title/lstart_1.png"));
 	loadimage(&loginPage, _T("../image/title/loginpage.png"));
 	loadimage(&registerPage, _T("../image/title/registerpage.png"));
-	int num = 0;
+	int videoNum = 0; // 主界面视频播放第x帧数
 
-
-	
 	settextstyle(35, 0, _T("Consolas"));
 	settextcolor(BLACK);
 	setbkcolor(WHITE);
@@ -218,12 +230,13 @@ void menuPage()
 		cleardevice();
 		peekmessage(&msg);
 
-		putimage(0, 0, &menuPageVideoImage[num]);
-		num++;
-		if (num == menuPageVideoNum-1)
-			num = 0;
+		// 背景视频播放
+		putimage(0, 0, &menuPageVideoImage[videoNum]);
+		videoNum++;
+		if (videoNum == menuPageVideoNum-1)
+			videoNum = 0;
 
-		if (imageButtonDetect(startLocate,start))
+		if (imageButtonDetect(startLocate,start)) // 是否点击了start
 		{
 			
 			if (msg.message == WM_LBUTTONDOWN && (userStatus == 1 || userStatus == 3))
@@ -240,7 +253,7 @@ void menuPage()
 			putimage(startLocate.x, startLocate.y, &start_1, SRCAND);
 			putimage(startLocate.x, startLocate.y, &start, SRCPAINT);
 		}
-		if (imageButtonDetect(loginLocate, login))
+		if (imageButtonDetect(loginLocate, login)) // 是否点击了login
 		{
 			if (msg.message == WM_LBUTTONDOWN)
 			{
@@ -261,7 +274,7 @@ void menuPage()
 			putimage(loginLocate.x, loginLocate.y, &login, SRCPAINT);
 			
 		}
-		if (imageButtonDetect(registerLocate, register1))
+		if (imageButtonDetect(registerLocate, register1)) // 是否点击了register
 		{
 			if (msg.message == WM_LBUTTONDOWN)
 			{
@@ -282,6 +295,8 @@ void menuPage()
 		}
 		putimage(runSteveLovate.x, runSteveLovate.y, &runSteve_1, SRCAND);
 		putimage(runSteveLovate.x, runSteveLovate.y, &runSteve, SRCPAINT);
+		
+		// 页面更新
 		if (menuStatus==1)
 		{
 			
@@ -302,9 +317,11 @@ void menuPage()
 				userStatus = 3;
 			}
 		}
+
 		headText();	
 		FlushBatchDraw();
 
+		// 帧率控制
 		freamTime = clock() - startTime;
 		if (freamTime > 0)
 			Sleep(fpsMenu - freamTime);
@@ -385,7 +402,7 @@ void loginAndRegisterPage(IMAGE& page)
 			else if (ch[0] == 13)
 			{
 				logORegStatus = 3;
-				if (menuStatus == 2)  //当为注册时
+				if (menuStatus == 2) 
 				{
 					userStatus = 3;
 				}
@@ -428,7 +445,8 @@ newUser* readUserInfo()
 	{
 		newUser* p = (newUser*)malloc(sizeof(newUser));
 		
-		if (fgets(p->name, sizeof(p->name), dataFile) != NULL) {
+		if (fgets(p->name, sizeof(p->name), dataFile) != NULL)  // 空文件检测
+		{ 
 		}
 		else {
 			break;
@@ -572,27 +590,25 @@ void headText()
 //游戏循环
 void gamePage()
 {
-	int goldCnt = 0;
-	int arrowCnt = 0;
-	int zombieCnt = 0;
-	int goldAppleCnt = 0;
-	int i = 0;
-	int j = 0;
-	int m = 0;
-	int n = 0;
-
+	// 当前应该播放第x帧
+	int steveImageNum = 0;
+	int railImageNum = 0;
+	int backgroundImagNum = 0;
+	int skyImageNum = 0;
 	int attackImgCnt = 0;
 
+	// 动画总共帧数
 	const int steveNum = 14;
 	const int railNum = 4;
 	const int backgroundNum = 17;
 	const int skyNum = 24;
 	const int attackNum = 15;
-	
 
-	char file_name[128];
-	char file_name1[128];
+	// 静态（不需要放大）图片位置
+	imageLocate steveLocate(0, 0);
+	imageLocate railLocate(-90, -200);
 
+	// 图片声明
 	IMAGE gold[2];
 	IMAGE arrow[2];
 	IMAGE steve[steveNum];
@@ -607,9 +623,11 @@ void gamePage()
 	IMAGE heart[2];
 	IMAGE red;
 
-
+	// 随位置变化的图片的加载 （伪3D）
 	int size;
 	int y = 200;
+	char file_name[128];
+	char file_name1[128];
 	for (int i = 0; i < 120;i++)
 	{
 		size = (int)((y * 0.1));
@@ -619,7 +637,6 @@ void gamePage()
 		loadimage(&frameWiseArrow1[i], "../image/arrow/arrow.png", size, size, true);
 		loadimage(&frameWiseGoldApple[i], "../image/props/goldApple1.png", size, size, true);
 		loadimage(&frameWiseGoldApple1[i], "../image/props/goldApple.png", size, size, true);
-		char file_name[128], file_name1[128];
 		sprintf_s(file_name, "../image/zombie/zombie%02d.jpg", zombieImgCnt);
 		sprintf_s(file_name1, "../image/zombie1/zombie1%02d.jpg", zombieImgCnt);
 		zombieImgCnt++;
@@ -629,11 +646,6 @@ void gamePage()
 		loadimage(&frameWiseZombie1[i], file_name, size * 3, size * 3, true);
 		y += 6;
 	}
-	
-
-	imageLocate steveLocate(0, 0);
-	imageLocate railLocate(-90, -200);
-
 	loadimage(&red,"../image/red.png");
 	loadimage(&gold[0], "../image/star/gold1.png");
 	loadimage(&gold[1], "../image/star/gold.png");
@@ -641,33 +653,31 @@ void gamePage()
 	loadimage(&arrow[1], "../image/arrow/arrow.png");
 	loadimage(&heart[0], "../image/heart/heart.png", 50, 50, true);
 	loadimage(&heart[1], "../image/heart/heart1.png", 50, 50, true);
-	
-
-	for (i = 0; i < steveNum; i++)
+	for (steveImageNum = 0; steveImageNum < steveNum; steveImageNum++)
 	{
-		sprintf_s(file_name, "../image/steve/steve%02d.jpg", i);
-		sprintf_s(file_name1, "../image/steve1/steve101%02d.jpg", i);
+		sprintf_s(file_name, "../image/steve/steve%02d.jpg", steveImageNum);
+		sprintf_s(file_name1, "../image/steve1/steve101%02d.jpg", steveImageNum);
 		//printf(file_name);
-		loadimage(&steve[i], file_name);
-		loadimage(&steve1[i], file_name1);
+		loadimage(&steve[steveImageNum], file_name);
+		loadimage(&steve1[steveImageNum], file_name1);
 
 	}
-	for (j = 0; j < railNum; j++)
+	for (railImageNum = 0; railImageNum < railNum; railImageNum++)
 	{
-		sprintf_s(file_name, "../image/rail/rail%d.jpg", j);
-		sprintf_s(file_name1, "../image/rail1/rail1%d.jpg", j);
-		loadimage(&rail[j], file_name,720,1280,true);
-		loadimage(&rail1[j], file_name1, 720, 1280, true);
+		sprintf_s(file_name, "../image/rail/rail%d.jpg", railImageNum);
+		sprintf_s(file_name1, "../image/rail1/rail1%d.jpg", railImageNum);
+		loadimage(&rail[railImageNum], file_name,720,1280,true);
+		loadimage(&rail1[railImageNum], file_name1, 720, 1280, true);
 	}
-	for (m = 0; m < backgroundNum; m++)
+	for (backgroundImagNum = 0; backgroundImagNum < backgroundNum; backgroundImagNum++)
 	{
-		sprintf_s(file_name, "../image/background/background%02d.jpg", m);
-		loadimage(&background[m], file_name);
+		sprintf_s(file_name, "../image/background/background%02d.jpg", backgroundImagNum);
+		loadimage(&background[backgroundImagNum], file_name);
 	}
-	for (n = 0; n < skyNum; n++)
+	for (skyImageNum = 0; skyImageNum < skyNum; skyImageNum++)
 	{
-		sprintf_s(file_name, "../image/sky/sky%02d.jpg", n);
-		loadimage(&sky[n], file_name);
+		sprintf_s(file_name, "../image/sky/sky%02d.jpg", skyImageNum);
+		loadimage(&sky[skyImageNum], file_name);
 	}
 	for (attackImgCnt = 0; attackImgCnt < attackNum; attackImgCnt++)
 	{
@@ -685,18 +695,14 @@ void gamePage()
 		loadimage(&zomebie[0][zombieImgCnt], file_name);
 		loadimage(&zomebie[1][zombieImgCnt], file_name1);
 	}
+
+	// 当前播放第x帧 重置
 	attackImgCnt = 0;
 	zombieImgCnt = 0;
-	i = 0;	
-	j = 0;
-	m = 0;
-	n = 1100;
-	item* barrierGold = NULL;
-	item* barrierArrow = NULL;
-	item* barrierZombie = NULL;
-	item* barrierGoldApple = NULL;
-	srand((unsigned int)time(0));
-	//MyClass* obj = new MyClass(args);
+	steveImageNum = 0;	
+	railImageNum = 0;
+	backgroundImagNum = 0;
+	skyImageNum = 1100;
 
 	setbkmode(TRANSPARENT);
 	settextcolor(WHITE);
@@ -706,73 +712,43 @@ void gamePage()
 	while (true)
 	{
 		startTime = clock();
-
 		cleardevice();
 		peekmessage(&msg);
 
+		//史蒂夫状态检测
 		steveMove(steveLocate);
 		steveJump(steveLocate);
 		
+		//背景图片更新
+		putimage(0, -50, &sky[skyImageNum / 100]);
+		skyImageNum++;
+		if (skyImageNum == skyNum * 100)
+			skyImageNum = 0;
+		putimage(0, 225, &background[backgroundImagNum]);
+		backgroundImagNum++;
+		if (backgroundImagNum == backgroundNum)
+			backgroundImagNum = 0;
+		putimage(railLocate.x, railLocate.y, &rail1[railImageNum], SRCAND);
+		putimage(railLocate.x, railLocate.y, &rail[railImageNum], SRCPAINT);
+		railImageNum++;
+		if (railImageNum == railNum)
+			railImageNum = 0;
 
-		int rand_number = rand() % 100000 + 1;
-		//难度和奖励会随分数增加而增加
-		goldRate = 0.001+user->points*0.000001; 
-		arrowRate = 0.001 + user->points * 0.000001; 
-		zombieRate = 0.001 + user->points * 0.000001;
-
-		if (rand_number <goldRate*3*100000)
-		{
-			rand_number = rand_number % 3 + 1;
-			barrierGold = createItem(barrierGold,  rand_number , goldCnt);
-		}
-		else if (rand_number<arrowRate*3*100000+ goldRate * 3 * 100000)
-		{
-			rand_number = rand_number % 3 + 1;
-			barrierArrow = createItem(barrierArrow, rand_number, arrowCnt);
-		}
-		else if (rand_number<zombieRate*3* 100000 + arrowRate * 3 * 100000 + goldRate * 3 * 100000)
-		{
-			rand_number = rand_number % 3 + 1;
-			barrierZombie = createItem(barrierZombie, rand_number, zombieCnt);
-		}
-		else if (goldAppleCnt<=1&&rand_number < goldAppleRate*3* 100000 + zombieRate * 3 * 100000 + arrowRate * 3 * 100000 + goldRate * 3 * 100000)
-		{
-			rand_number = rand_number % 3 + 1;
-			barrierGoldApple = createItem(barrierGoldApple, rand_number, goldAppleCnt);
-		}
-			
-		putimage(0, -50, &sky[n/100]);
-		n++;
-		if (n == skyNum*100)
-			n = 0;
-
-		putimage(0, 225, &background[m]);
-		m++;
-		if (m == backgroundNum)
-			m = 0;
-
-		
-
-		putimage(railLocate.x, railLocate.y,&rail1[j], SRCAND);
-		putimage(railLocate.x, railLocate.y,&rail[j], SRCPAINT);
-		j++;
-		if (j == railNum)
-			j = 0;
-
-		barrierGold = itemUpdate(barrierGold, goldCnt,1);
-		barrierZombie = itemUpdate(barrierZombie, zombieCnt, 3);
-		barrierArrow = itemUpdate(barrierArrow,arrowCnt,2);
-		barrierGoldApple = itemUpdate(barrierGoldApple, goldAppleCnt, 4);
-		
-
+		// 生成物更新
+		creatAllItem();
+		updateAllItem();
+	
+		// 史蒂夫动画更新
 		if (!attackFlag)
 		{
-			putimage(steveLocate.x, steveLocate.y, &steve1[i], SRCAND);
-			putimage(steveLocate.x, steveLocate.y, &steve[i], SRCPAINT);
+			putimage(steveLocate.x, steveLocate.y, &steve1[steveImageNum], SRCAND);
+			putimage(steveLocate.x, steveLocate.y, &steve[steveImageNum], SRCPAINT);
+			steveImageNum++;
+			if (steveImageNum == steveNum)
+				steveImageNum = 0;
 		}
 		else
 		{
-			
 			putimage(steveLocate.x, steveLocate.y, &attack1[attackImgCnt], SRCAND);
 			putimage(steveLocate.x, steveLocate.y, &attack[attackImgCnt], SRCPAINT);
 			attackImgCnt++;
@@ -781,8 +757,9 @@ void gamePage()
 				attackImgCnt = 0;
 				attackFlag = 0;
 			}
-
 		}
+
+		//受击动画更新
 		if (hurtStatus != 0)
 		{
 			putimage(0, 0, &red, SRCAND);
@@ -790,19 +767,15 @@ void gamePage()
 			if (hurtStatus == 6)
 				hurtStatus = 0;
 		}
-	
-		i++;
-		if (i == steveNum)
-			i = 0;
 		
 		pointsUpdate();
 		heartUpdate(heart, heartCnt);
 
+		// 如果生命值为0 执行游戏结束
 		if (heartCnt == 0)
 		{
 			setbkcolor(BLACK);
 			cleardevice();
-			
 			heartCnt = HEARTCNT;
 			if (user->points > user->score)
 				user->score = user->points;
@@ -812,6 +785,7 @@ void gamePage()
 			break;
 		}
 
+		// 帧率控制 与 无敌加速（通过不限制帧率来实现加速效果）
 		if (!invincibleFlag)
 		{
 			freamTime = clock() - startTime;
@@ -893,6 +867,46 @@ void steveJump(imageLocate& steveLocate)
 		jumpFlag = 0;
 	}
 	
+}
+
+void creatAllItem()
+{
+	//srand((unsigned int)time(0));
+	int rand_number = rand() % 100000 + 1;
+
+	//难度和奖励会随分数增加而增加
+	goldRate = 0.001 + user->points * 0.000001;
+	arrowRate = 0.001 + user->points * 0.000001;
+	zombieRate = 0.001 + user->points * 0.000001;
+
+	if (rand_number < goldRate * 3 * 100000)
+	{
+		rand_number = rand_number % 3 + 1;
+		barrierGold = createItem(barrierGold, rand_number, goldCnt);
+	}
+	else if (rand_number < arrowRate * 3 * 100000 + goldRate * 3 * 100000)
+	{
+		rand_number = rand_number % 3 + 1;
+		barrierArrow = createItem(barrierArrow, rand_number, arrowCnt);
+	}
+	else if (rand_number < zombieRate * 3 * 100000 + arrowRate * 3 * 100000 + goldRate * 3 * 100000)
+	{
+		rand_number = rand_number % 3 + 1;
+		barrierZombie = createItem(barrierZombie, rand_number, zombieCnt);
+	}
+	else if (goldAppleCnt <= 1 && rand_number < goldAppleRate * 3 * 100000 + zombieRate * 3 * 100000 + arrowRate * 3 * 100000 + goldRate * 3 * 100000)
+	{
+		rand_number = rand_number % 3 + 1;
+		barrierGoldApple = createItem(barrierGoldApple, rand_number, goldAppleCnt);
+	}
+}
+
+void updateAllItem()
+{
+	barrierGold = itemUpdate(barrierGold, goldCnt, 1);
+	barrierZombie = itemUpdate(barrierZombie, zombieCnt, 3);
+	barrierArrow = itemUpdate(barrierArrow, arrowCnt, 2);
+	barrierGoldApple = itemUpdate(barrierGoldApple, goldAppleCnt, 4);
 }
 
 item* createItem(item* head,int modle,int& cnt)
