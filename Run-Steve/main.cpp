@@ -12,7 +12,7 @@
 #define HEIGHT 920
 FILE* dataFile; // 储存用户数据的文件
 ExMessage msg;
-clock_t fpsMenu = 1000 / 60; // 主页每一帧的时间
+clock_t fpsMenu = 1000 / 165; // 主页每一帧的时间
 clock_t fpsGame = 1000 / 60;  // 游戏页面每一帧的时间
 
 //默认SETTINGS数值
@@ -229,9 +229,9 @@ void menuPage()
 		peekmessage(&msg);
 
 		// 背景视频播放
-		putimage(0, 0, &menuPageVideoImage[videoNum]);
+		putimage(0, 0, &menuPageVideoImage[videoNum/2]);
 		videoNum++;
-		if (videoNum == menuPageVideoNum-1)
+		if (videoNum == 2*(menuPageVideoNum-1))
 			videoNum = 0;
 
 		if (imageButtonDetect(startLocate,start)) // 是否点击了start
