@@ -794,7 +794,7 @@ void gamePage()
 		}
 		else
 		{
-			if (clock() - invincibleStartTime > 5000)
+			if (clock() - invincibleStartTime > 3000)
 			{
 				invincibleFlag = 0;
 			}
