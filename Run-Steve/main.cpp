@@ -843,7 +843,6 @@ void steveMove(imageLocate& steveLocate)
 		if (steveLocate.x == 0)
 			steveModle = 2;
 	}
-		
 }
 
 void steveJump(imageLocate& steveLocate)
