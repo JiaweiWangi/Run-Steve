@@ -321,7 +321,7 @@ void menuPage()
 
 		// Ö¡ÂÊ¿ØÖÆ
 		freamTime = clock() - startTime;
-		if (fpsMenu - freamTime > 0)
+		if (freamTime > 0)
 			Sleep(fpsMenu - freamTime);
 
 	}
@@ -455,7 +455,6 @@ newUser* readUserInfo()
 		sscanf_s(temp, "%d", &p->score);
 		p->name[strcspn(p->name,"\n")]='\0';
 		p->password[strcspn(p->password,"\n")]= '\0';
-		p->points = 0;
 		//printf("%s\n%s\n", p->name, p->password);
 		p->next = NULL;
 		newUser* last = head;
@@ -548,6 +547,7 @@ bool cheackUser()
 			if(user->score>temp->score)
 				temp->score = user->score;
 			user = temp;
+			user->points = 0;
 			return 1;
 		}
 			
@@ -779,6 +779,7 @@ void gamePage()
 			heartCnt = HEARTCNT;
 			if (user->points > user->score)
 				user->score = user->points;
+			user->points = 0;
 			updateUserFile();
 			drawRanking();
 			break;
@@ -1165,7 +1166,7 @@ void drawRanking()
 		}
 		else if (i == 1)
 		{
-			drawtext(_T("TOP POINTS"), &r[i], DT_RIGHT | DT_VCENTER | DT_SINGLELINE);
+			drawtext(_T("SCORE"), &r[i], DT_RIGHT | DT_VCENTER | DT_SINGLELINE);
 			drawtext(_T("NAME"), &r[i], DT_LEFT | DT_VCENTER | DT_SINGLELINE);
 		}
 		else if(i>1&&i<12)
@@ -1187,13 +1188,13 @@ void drawRanking()
 		}
 		else if (i == 12)
 		{
-			drawtext(_T("YOUR POINTS"), &r[i], DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+			drawtext(_T("YOUR SCORE"), &r[i], DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 		}
 		else if (i == 13)
 		{
 			char score[21] = "";
 			char name[21] = "";
-			sprintf_s(score, "%d", user->points);
+			sprintf_s(score, "%d", user->score);
 			sprintf_s(name, "%s", user->name);
 			drawtext(score, &r[i], DT_RIGHT | DT_VCENTER | DT_SINGLELINE);
 			drawtext(name, &r[i], DT_LEFT | DT_VCENTER | DT_SINGLELINE);
