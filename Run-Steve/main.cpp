@@ -324,7 +324,6 @@ void menuPage()
 		freamTime = clock() - startTime;
 		if (fpsMenu-freamTime > 0)
 			Sleep(fpsMenu - freamTime);
-
 	}
 
 	EndBatchDraw();
