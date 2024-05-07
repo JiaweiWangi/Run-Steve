@@ -146,7 +146,6 @@ void menuPage()
 	user = (newUser*)malloc(sizeof(newUser));
 	user->name[0] = '\0';
 	user->password[0] = '\0';
-	user->points = 0;
 	head = readUserInfo();
 
 	//状态初始化
@@ -547,7 +546,6 @@ bool cheackUser()
 			if(user->score>temp->score)
 				temp->score = user->score;
 			user = temp;
-			user->points = 0;
 			return 1;
 		}
 			
@@ -594,6 +592,9 @@ void gamePage()
 	int backgroundImagNum = 0;
 	int skyImageNum = 0;
 	int attackImgCnt = 0;
+
+	//分数重置
+	user->points = 0;
 
 	// 动画总共帧数
 	const int steveNum = 14;
@@ -779,9 +780,9 @@ void gamePage()
 			heartCnt = HEARTCNT;
 			if (user->points > user->score)
 				user->score = user->points;
-			user->points = 0;
 			updateUserFile();
 			drawRanking();
+			user->points = 0;
 			break;
 		}
 
@@ -1166,7 +1167,7 @@ void drawRanking()
 		}
 		else if (i == 1)
 		{
-			drawtext(_T("SCORE"), &r[i], DT_RIGHT | DT_VCENTER | DT_SINGLELINE);
+			drawtext(_T("TOP POINTS"), &r[i], DT_RIGHT | DT_VCENTER | DT_SINGLELINE);
 			drawtext(_T("NAME"), &r[i], DT_LEFT | DT_VCENTER | DT_SINGLELINE);
 		}
 		else if(i>1&&i<12)
@@ -1188,13 +1189,13 @@ void drawRanking()
 		}
 		else if (i == 12)
 		{
-			drawtext(_T("YOUR SCORE"), &r[i], DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+			drawtext(_T("YOUR POINTS"), &r[i], DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 		}
 		else if (i == 13)
 		{
 			char score[21] = "";
 			char name[21] = "";
-			sprintf_s(score, "%d", user->score);
+			sprintf_s(score, "%d", user->points);
 			sprintf_s(name, "%s", user->name);
 			drawtext(score, &r[i], DT_RIGHT | DT_VCENTER | DT_SINGLELINE);
 			drawtext(name, &r[i], DT_LEFT | DT_VCENTER | DT_SINGLELINE);
