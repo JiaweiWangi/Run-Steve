@@ -41,6 +41,8 @@ int jumpFlag = 0; // 1 jumping;
 int attackFlag = 0; // 1 attacking
 int invincibleFlag = 0; // 是否处于无敌状态
 int invincibleStartTime; // 无敌时间
+int magnetFlag = 1; // 是否处于磁吸状态
+int magnetStartTime; //磁力道具时间
 
 int zombieImgCnt = 0; // 当前播放僵尸的第x帧
 const int zombieNum = 14; // 僵尸动画帧数
@@ -1051,20 +1053,40 @@ item* itemUpdate(item* barrierItem,int& cnt,int category) //category 1为金币 2为
 
 		head->y += head->y*0.015;
 		//printf("%d\n", head -> speed);
-
-		if (head->modle == 1)
+		int left = (int)(-0.224 * head->y + 220);
+		int mid = (int)(-0.05 * head->y + 270);
+		int right= (int)(0.13 * head->y + 320);
+		if (!(magnetFlag && category == 1))
 		{
-			head->x = (int)(-0.224 * head->y +220);
+			if (head->modle == 1)
+			{
+				head->x = left;
+			}
+			else if (head->modle == 2)
+			{
+				head->x = mid;
+			}
+			else if (head->modle == 3)
+			{
+				head->x = right;
+			}
 		}
-		else if (head->modle == 2)
+		else
 		{
-			head->x = (int)(-0.05 * head->y+270);
+			if (steveModle == 1&&head->x>=left-8&&head->x<=left+8) {
+				head->x-=4;
+			}
+			if (steveModle == 2 && head->x>=mid-8&&head->x<=mid+8 ) {
+				if (head->modle == 1)
+					head->x+=4;
+				if (head->modle == 3)
+					head->x-=4;
+			}
+			if (steveModle == 3 && head->x>=right-8&&head->x<= right +8) {
+				head->x+=4;
+			}
 		}
-		else if (head->modle == 3)
-		{
-			head->x = (int)(0.13*head->y+320);
-		}
-
+		
 
 		size = (int)((head->y * 0.1));
 		int imageCnt = (head->y - 200) / 6;
