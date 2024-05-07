@@ -815,15 +815,15 @@ void steveMove(imageLocate& steveLocate)
 	const int steveRight = 180;
 	if (msg.message == WM_KEYDOWN)
 	{
-		if (msg.vkcode == 0x25)
+		if (msg.vkcode == 37||msg.vkcode== 65)
 		{
 			steveMoveFlag = -1;
 		}
-		if (msg.vkcode == 0x27)
+		if (msg.vkcode == 39||msg.vkcode== 68)
 		{
 			steveMoveFlag = 1;
 		}
-		if (msg.vkcode == 0x28)
+		if (msg.vkcode == 0x28||msg.vkcode== 83)
 		{
 			attackFlag = 1;
 		}
@@ -853,7 +853,7 @@ void steveJump(imageLocate& steveLocate)
 
 	if (msg.message == WM_KEYDOWN)
 	{
-		if (msg.vkcode == 0x26)
+		if (msg.vkcode == 38||msg.vkcode== 87)
 			jumpFlag = 1;
 	}
 	if (jumpFlag == 1)
