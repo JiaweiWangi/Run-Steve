@@ -323,7 +323,7 @@ void menuPage()
 
 		// 帧率控制
 		freamTime = clock() - startTime;
-		if (freamTime > 0)
+		if (fpsMenu-freamTime > 0)
 			Sleep(fpsMenu - freamTime);
 
 	}
@@ -1056,7 +1056,7 @@ item* itemUpdate(item* barrierItem,int& cnt,int category) //category 1为金币 2为
 		int left = (int)(-0.224 * head->y + 220);
 		int mid = (int)(-0.05 * head->y + 270);
 		int right= (int)(0.13 * head->y + 320);
-		if (!(magnetFlag && category == 1))
+		if (!(magnetFlag && category == 1&&head->y>500))
 		{
 			if (head->modle == 1)
 			{
@@ -1071,19 +1071,12 @@ item* itemUpdate(item* barrierItem,int& cnt,int category) //category 1为金币 2为
 				head->x = right;
 			}
 		}
-		else
+		else 
 		{
-			if (steveModle == 1&&head->x>=left-8&&head->x<=left+8) {
-				head->x-=4;
-			}
-			if (steveModle == 2 && head->x>=mid-8&&head->x<=mid+8 ) {
-				if (head->modle == 1)
-					head->x+=4;
-				if (head->modle == 3)
-					head->x-=4;
-			}
-			if (steveModle == 3 && head->x>=right-8&&head->x<= right +8) {
-				head->x+=4;
+			if (abs(head->y - 700) > 20)
+				head->y += 16;
+			if (steveModle == 1) {
+				z
 			}
 		}
 		
