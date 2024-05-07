@@ -41,6 +41,8 @@ int jumpFlag = 0; // 1 jumping;
 int attackFlag = 0; // 1 attacking
 int invincibleFlag = 0; // 是否处于无敌状态
 int invincibleStartTime; // 无敌时间
+int magnetFlag = 1; // 是否处于磁吸状态
+int magnetStartTime; //磁力道具时间
 
 int zombieImgCnt = 0; // 当前播放僵尸的第x帧
 const int zombieNum = 14; // 僵尸动画帧数
@@ -146,7 +148,6 @@ void menuPage()
 	user = (newUser*)malloc(sizeof(newUser));
 	user->name[0] = '\0';
 	user->password[0] = '\0';
-	user->points = 0;
 	head = readUserInfo();
 
 	//状态初始化
@@ -321,9 +322,8 @@ void menuPage()
 
 		// 帧率控制
 		freamTime = clock() - startTime;
-		if (freamTime > 0)
+		if (fpsMenu-freamTime > 0)
 			Sleep(fpsMenu - freamTime);
-
 	}
 
 	EndBatchDraw();
@@ -547,7 +547,6 @@ bool cheackUser()
 			if(user->score>temp->score)
 				temp->score = user->score;
 			user = temp;
-			user->points = 0;
 			return 1;
 		}
 			
@@ -594,6 +593,9 @@ void gamePage()
 	int backgroundImagNum = 0;
 	int skyImageNum = 0;
 	int attackImgCnt = 0;
+
+	//分数重置
+	user->points = 0;
 
 	// 动画总共帧数
 	const int steveNum = 14;
@@ -779,9 +781,9 @@ void gamePage()
 			heartCnt = HEARTCNT;
 			if (user->points > user->score)
 				user->score = user->points;
-			user->points = 0;
 			updateUserFile();
 			drawRanking();
+			user->points = 0;
 			break;
 		}
 
@@ -814,15 +816,15 @@ void steveMove(imageLocate& steveLocate)
 	const int steveRight = 180;
 	if (msg.message == WM_KEYDOWN)
 	{
-		if (msg.vkcode == 0x25)
+		if (msg.vkcode == 37||msg.vkcode== 65)
 		{
 			steveMoveFlag = -1;
 		}
-		if (msg.vkcode == 0x27)
+		if (msg.vkcode == 39||msg.vkcode== 68)
 		{
 			steveMoveFlag = 1;
 		}
-		if (msg.vkcode == 0x28)
+		if (msg.vkcode == 0x28||msg.vkcode== 83)
 		{
 			attackFlag = 1;
 		}
@@ -842,7 +844,6 @@ void steveMove(imageLocate& steveLocate)
 		if (steveLocate.x == 0)
 			steveModle = 2;
 	}
-		
 }
 
 void steveJump(imageLocate& steveLocate)
@@ -852,7 +853,7 @@ void steveJump(imageLocate& steveLocate)
 
 	if (msg.message == WM_KEYDOWN)
 	{
-		if (msg.vkcode == 0x26)
+		if (msg.vkcode == 38||msg.vkcode== 87)
 			jumpFlag = 1;
 	}
 	if (jumpFlag == 1)
@@ -1051,20 +1052,33 @@ item* itemUpdate(item* barrierItem,int& cnt,int category) //category 1为金币 2为
 
 		head->y += head->y*0.015;
 		//printf("%d\n", head -> speed);
-
-		if (head->modle == 1)
+		int left = (int)(-0.224 * head->y + 220);
+		int mid = (int)(-0.05 * head->y + 270);
+		int right= (int)(0.13 * head->y + 320);
+		if (!(magnetFlag && category == 1&&head->y>500))
 		{
-			head->x = (int)(-0.224 * head->y +220);
+			if (head->modle == 1)
+			{
+				head->x = left;
+			}
+			else if (head->modle == 2)
+			{
+				head->x = mid;
+			}
+			else if (head->modle == 3)
+			{
+				head->x = right;
+			}
 		}
-		else if (head->modle == 2)
+		else 
 		{
-			head->x = (int)(-0.05 * head->y+270);
+			if (abs(head->y - 700) > 20)
+				head->y += 16;
+			if (steveModle == 1) {
+				z
+			}
 		}
-		else if (head->modle == 3)
-		{
-			head->x = (int)(0.13*head->y+320);
-		}
-
+		
 
 		size = (int)((head->y * 0.1));
 		int imageCnt = (head->y - 200) / 6;
@@ -1166,7 +1180,7 @@ void drawRanking()
 		}
 		else if (i == 1)
 		{
-			drawtext(_T("SCORE"), &r[i], DT_RIGHT | DT_VCENTER | DT_SINGLELINE);
+			drawtext(_T("TOP POINTS"), &r[i], DT_RIGHT | DT_VCENTER | DT_SINGLELINE);
 			drawtext(_T("NAME"), &r[i], DT_LEFT | DT_VCENTER | DT_SINGLELINE);
 		}
 		else if(i>1&&i<12)
@@ -1188,13 +1202,13 @@ void drawRanking()
 		}
 		else if (i == 12)
 		{
-			drawtext(_T("YOUR SCORE"), &r[i], DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+			drawtext(_T("YOUR POINTS"), &r[i], DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 		}
 		else if (i == 13)
 		{
 			char score[21] = "";
 			char name[21] = "";
-			sprintf_s(score, "%d", user->score);
+			sprintf_s(score, "%d", user->points);
 			sprintf_s(name, "%s", user->name);
 			drawtext(score, &r[i], DT_RIGHT | DT_VCENTER | DT_SINGLELINE);
 			drawtext(name, &r[i], DT_LEFT | DT_VCENTER | DT_SINGLELINE);
