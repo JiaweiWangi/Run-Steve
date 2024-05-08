@@ -567,6 +567,7 @@ void headText()
 	char s2[50] = "Login failed, Please try again";
 	char s3[50] = "";
 	char s4[50] = "Account not logged in";
+	char s5[60] = "¡ü ¡ý ¡û ¡ú CONTROL STEVE AND ¡°SPACE¡± PAUSE";
 	switch (userStatus)
 	{
 	case 0:
@@ -586,7 +587,6 @@ void headText()
 	default:
 		break;
 	}
-	char s5[60] = "¡ü ¡ý ¡û ¡ú CONTROL STEVE AND ¡°SPACE¡± PAUSE";
 	outtextxy((WIDTH - textwidth(s5)) / 2, 230, s5);
 }
 
