@@ -321,7 +321,7 @@ void menuPage()
 
 		// Ö¡ÂÊ¿ØÖÆ
 		freamTime = clock() - startTime;
-		if (freamTime > 0)
+		if (fpsMenu-freamTime > 0)
 			Sleep(fpsMenu - freamTime);
 
 	}
@@ -547,7 +547,6 @@ bool cheackUser()
 			if(user->score>temp->score)
 				temp->score = user->score;
 			user = temp;
-			user->points = 0;
 			return 1;
 		}
 			
@@ -779,7 +778,6 @@ void gamePage()
 			heartCnt = HEARTCNT;
 			if (user->points > user->score)
 				user->score = user->points;
-			user->points = 0;
 			updateUserFile();
 			drawRanking();
 			break;
@@ -814,15 +812,15 @@ void steveMove(imageLocate& steveLocate)
 	const int steveRight = 180;
 	if (msg.message == WM_KEYDOWN)
 	{
-		if (msg.vkcode == 0x25)
+		if (msg.vkcode == 37||msg.vkcode== 65)
 		{
 			steveMoveFlag = -1;
 		}
-		if (msg.vkcode == 0x27)
+		if (msg.vkcode == 39||msg.vkcode== 68)
 		{
 			steveMoveFlag = 1;
 		}
-		if (msg.vkcode == 0x28)
+		if (msg.vkcode == 0x28||msg.vkcode== 83)
 		{
 			attackFlag = 1;
 		}
@@ -842,7 +840,6 @@ void steveMove(imageLocate& steveLocate)
 		if (steveLocate.x == 0)
 			steveModle = 2;
 	}
-		
 }
 
 void steveJump(imageLocate& steveLocate)
@@ -852,7 +849,7 @@ void steveJump(imageLocate& steveLocate)
 
 	if (msg.message == WM_KEYDOWN)
 	{
-		if (msg.vkcode == 0x26)
+		if (msg.vkcode == 38||msg.vkcode== 87)
 			jumpFlag = 1;
 	}
 	if (jumpFlag == 1)
@@ -1166,7 +1163,7 @@ void drawRanking()
 		}
 		else if (i == 1)
 		{
-			drawtext(_T("SCORE"), &r[i], DT_RIGHT | DT_VCENTER | DT_SINGLELINE);
+			drawtext(_T("TOP POINTS"), &r[i], DT_RIGHT | DT_VCENTER | DT_SINGLELINE);
 			drawtext(_T("NAME"), &r[i], DT_LEFT | DT_VCENTER | DT_SINGLELINE);
 		}
 		else if(i>1&&i<12)
@@ -1188,13 +1185,13 @@ void drawRanking()
 		}
 		else if (i == 12)
 		{
-			drawtext(_T("YOUR SCORE"), &r[i], DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+			drawtext(_T("YOUR POINTS"), &r[i], DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 		}
 		else if (i == 13)
 		{
 			char score[21] = "";
 			char name[21] = "";
-			sprintf_s(score, "%d", user->score);
+			sprintf_s(score, "%d", user->points);
 			sprintf_s(name, "%s", user->name);
 			drawtext(score, &r[i], DT_RIGHT | DT_VCENTER | DT_SINGLELINE);
 			drawtext(name, &r[i], DT_LEFT | DT_VCENTER | DT_SINGLELINE);
