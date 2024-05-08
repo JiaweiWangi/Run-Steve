@@ -119,6 +119,7 @@ void updateUserFile(); // 将游戏成绩信息存储至本地
 bool cheackUser(); // 登录时检测输入的账户与本地存储的账户是否一致
 void headText(); // 主界面显示登录状态
 void gamePage(); // 游戏界面循环
+void pauseDetect(); // 暂停检测
 void steveMove(imageLocate& steveLocate); // 史蒂夫移动/攻击状态检测
 void steveJump(imageLocate& steveLocate); // 史蒂夫跳跃检测
 void creatAllItem(); // 所有生成物的创建
@@ -441,7 +442,6 @@ newUser* readUserInfo()
 {
 	head = NULL;
 	fopen_s(&dataFile, "../data/data.txt", "r");
-
 	while (!feof(dataFile))
 	{
 		newUser* p = (newUser*)malloc(sizeof(newUser));
@@ -586,6 +586,8 @@ void headText()
 	default:
 		break;
 	}
+	char s5[60] = "↑ ↓ ← → CONTROL STEVE AND “SPACE” PAUSE";
+	outtextxy((WIDTH - textwidth(s5)) / 2, 230, s5);
 }
 
 //游戏循环
@@ -717,6 +719,7 @@ void gamePage()
 		startTime = clock();
 		cleardevice();
 		peekmessage(&msg);
+		
 
 		//史蒂夫状态检测
 		steveMove(steveLocate);
@@ -788,6 +791,7 @@ void gamePage()
 			break;
 		}
 
+
 		// 帧率控制 与 无敌加速（通过不限制帧率来实现加速效果）
 		if (!invincibleFlag)
 		{
@@ -802,11 +806,29 @@ void gamePage()
 				invincibleFlag = 0;
 			}
 		}
-		
+		pauseDetect();
 		FlushBatchDraw();
 		
 	}
 	EndBatchDraw();
+}
+
+void pauseDetect()
+{
+	if (msg.message == WM_KEYDOWN && msg.vkcode == 32)
+	{
+		setbkmode(TRANSPARENT);
+		settextstyle(25, 0, _T("Consolas"));
+		char s[10] = "PAUSE";
+		outtextxy((WIDTH - textwidth(s)) / 2, (HEIGHT - textheight(s)) / 2, s);
+		FlushBatchDraw();
+		while (true)
+		{
+			peekmessage(&msg);
+			if (msg.message == WM_KEYDOWN && msg.vkcode == 32)
+				break;
+		}
+	}
 }
 
 void steveMove(imageLocate& steveLocate)
