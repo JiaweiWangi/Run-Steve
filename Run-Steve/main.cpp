@@ -455,6 +455,7 @@ newUser* readUserInfo()
 		sscanf_s(temp, "%d", &p->score);
 		p->name[strcspn(p->name,"\n")]='\0';
 		p->password[strcspn(p->password,"\n")]= '\0';
+		p->points = 0;
 		//printf("%s\n%s\n", p->name, p->password);
 		p->next = NULL;
 		newUser* last = head;
