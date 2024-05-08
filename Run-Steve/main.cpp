@@ -123,8 +123,10 @@ void steveMove(imageLocate& steveLocate); // 史蒂夫移动/攻击状态检测
 void steveJump(imageLocate& steveLocate); // 史蒂夫跳跃检测
 void creatAllItem(); // 所有生成物的创建
 void updateAllItem(); // 所有生成物的更新
+void freeAllItem(); // 所有生成物的清理
 item* createItem(item*,int,int&); // 创建生成物链表
 item* itemUpdate(item* itemGold,int& cnt,int category); // 更新生成物链表 并将其putimage
+item* freeItem(item* barrierItem); // 游戏结束后清理item链表
 void heartUpdate(IMAGE heart[2], int heartCnt); // 玩家血量更新
 void pointsUpdate(); // 玩家分数更新
 void drawRanking(); // 游戏排行榜绘制
@@ -157,6 +159,7 @@ void menuPage()
 	jumpFlag = 0;
 	attackFlag = 0;
 	invincibleFlag = 0;
+	hurtStatus = 0;
 
 	//规定一些静态图片的位置
 	imageLocate runSteveLovate(12, 100);
@@ -781,6 +784,7 @@ void gamePage()
 				user->score = user->points;
 			updateUserFile();
 			drawRanking();
+			freeAllItem();
 			break;
 		}
 
@@ -911,6 +915,14 @@ void updateAllItem()
 	itemArrow = itemUpdate(itemArrow, arrowCnt, 2);
 	itemGoldApple = itemUpdate(itemGoldApple, goldAppleCnt, 4);
 	itemHeart = itemUpdate(itemHeart, heartItemCnt, 5);
+}
+
+void freeAllItem() {
+	itemGold = freeItem(itemGold);
+	itemZombie = freeItem(itemZombie);
+	itemArrow = freeItem(itemArrow);
+	itemGoldApple = freeItem(itemGoldApple);
+	itemHeart = freeItem(itemHeart);
 }
 
 item* createItem(item* head,int modle,int& cnt)
@@ -1094,6 +1106,17 @@ item* itemUpdate(item* barrierItem,int& cnt,int category) //category 1为金币 2为
 			putimage(head->x, head->y, &frameWiseHeart1[imageCnt], SRCPAINT);
 		}
 		head = head->next;
+	}
+	return barrierItem;
+}
+
+item* freeItem(item* barrierItem)
+{
+	while (barrierItem!=NULL)
+	{
+		item* toFree = barrierItem;
+		barrierItem = barrierItem->next;
+		free(toFree);
 	}
 	return barrierItem;
 }
