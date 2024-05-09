@@ -504,7 +504,9 @@ void updateUserFile()
 	newUser* i, * j;
 	char tempName[21];
 	char tempPassword[21];
-	int tempScore;
+	int tempScore,tempPoints;
+	char userName[21];
+	strcpy_s(userName, user->name);
 	for (i = head; i != NULL; i = i->next)
 	{
 		for (j = i; j != NULL; j = j->next)
@@ -513,17 +515,21 @@ void updateUserFile()
 			{
 				//temp = min->score;
 				tempScore = i->score;
+				tempPoints = i->points;
 				strcpy_s(tempName, i->name);
 				strcpy_s(tempPassword, i->password);
 				//min->data = j->data;
 				i->score = j->score;
+				i->points = j->points;
 				strcpy_s(i->name, j->name);
 				strcpy_s(i->password, j->password);
 				//j->data = temp;
 				j->score = tempScore;
+				j->points = tempPoints;
 				strcpy_s(j->name, tempName);
 				strcpy_s(j->password, tempPassword);
-				user = j;
+				if(!strcmp(i->name, userName))
+					user = i;
 			}
 		}
 	}
@@ -553,7 +559,6 @@ bool cheackUser()
 			user = temp;
 			return 1;
 		}
-			
 		temp = temp->next;
 	}
 	return 0;
@@ -1216,7 +1221,7 @@ void drawRanking()
 		{
 			if (temp == NULL)
 				continue;
-			if (temp == user)
+			if (!strcmp(temp->name, user->name))
 			{
 				setfillcolor(LIGHTGRAY);
 				fillrectangle(recRight, (recTop + recHigh * i), recLeft, (recTop + recHigh * (i + 1)));
