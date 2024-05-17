@@ -175,25 +175,24 @@ item* itemGoldApple = NULL;
 item* itemHeart = NULL;
 
 void menuPage(); // 主界面循环
-void menuInit();
+void menuInit(); // 主界面初始化
+newUser* readUserInfo(); // 将本地用户存档信息读取至链表
 bool imageButtonDetect(imageLocate& locate, IMAGE& image); // 检测鼠标点击位置是否在某个图像上
 void loginAndRegisterPage(IMAGE& page);  // 登录和注册页面
-newUser* readUserInfo(); // 将本地用户存档信息读取至链表
 void updateUserFile(); // 将游戏成绩信息存储至本地
 bool cheackUser(); // 登录时检测输入的账户与本地存储的账户是否一致
 void headText(); // 主界面显示登录状态
 void gamePage(); // 游戏界面循环
-void gameInit();
+void gameInit(); // 游戏界面初始化
 void pauseDetect(); // 暂停检测
-void steveMove(imageLocate& steveLocate); // 史蒂夫移动/攻击状态检测
-void steveJump(imageLocate& steveLocate); // 史蒂夫跳跃检测
+void steveStatusDetect(); // 史蒂夫移动/攻击状态检测
 void creatAllItem(); // 所有生成物的创建
 void updateAllItem(); // 所有生成物的更新
 void freeAllItem(); // 所有生成物的清理
-item* createItem(item*,int,int&); // 创建生成物链表
-item* updateItem(item* itemGold,int& cnt,int category); // 更新生成物链表 并将其putimage
-item* freeItem(item* barrierItem); // 游戏结束后清理item链表
-void heartUpdate(IMAGE heart[2], int heartCnt); // 玩家血量更新
+item* createItem(item* head,int modle ,int& cnt); // 创建该种生成物，并将其加入对应的生成物链表
+item* updateItem(item* headItem,int& cnt,int category); // 更新生成物链表 并将其显示出来
+item* freeItem(item* barrierItem); // 清理该种生成物链表内存
+void heartUpdate(); // 玩家血量更新
 void pointsUpdate(); // 玩家分数更新
 void drawRanking(); // 游戏排行榜绘制
 
@@ -210,8 +209,8 @@ int main() //程序主函数
 
 void menuPage()
 {
-	head = readUserInfo();
 	menuInit();
+	head = readUserInfo();
 
 	// 背景音乐播放
 	mciSendString("open ../songs/C418.wav alias MySong", NULL, 0, NULL);
@@ -647,8 +646,7 @@ void gamePage()
 		
 
 		//史蒂夫状态检测
-		steveMove(steveLocate);
-		steveJump(steveLocate);
+		steveStatusDetect();
 		
 		//背景图片更新
 		putimage(0, -50, &sky[skyImageNum / 100]);
@@ -700,7 +698,7 @@ void gamePage()
 		}
 		
 		pointsUpdate();
-		heartUpdate(heart, heartCnt);
+		heartUpdate();
 
 		// 如果生命值为0 执行游戏结束
 		if (heartCnt == 0)
@@ -848,7 +846,7 @@ void pauseDetect()
 	}
 }
 
-void steveMove(imageLocate& steveLocate)
+void steveStatusDetect()
 {
 	static int  steveMoveFlag = 0; //-1为向左移动 1为向右移动 0为不动
 	int steveSpeed = 10; //速度应可以整除150
@@ -884,16 +882,13 @@ void steveMove(imageLocate& steveLocate)
 		if (steveLocate.x == 0)
 			steveModle = 2;
 	}
-}
 
-void steveJump(imageLocate& steveLocate)
-{
 	static int v0 = 26;
 	static int gravity = 2;
 
 	if (msg.message == WM_KEYDOWN)
 	{
-		if (msg.vkcode == 38||msg.vkcode== 87)
+		if (msg.vkcode == 38 || msg.vkcode == 87)
 			jumpFlag = 1;
 	}
 	if (jumpFlag == 1)
@@ -901,13 +896,13 @@ void steveJump(imageLocate& steveLocate)
 		steveLocate.y -= v0;
 		v0 -= gravity;
 	}
-	
+
 	if (steveLocate.y == 0)
 	{
 		v0 = 26;
 		jumpFlag = 0;
 	}
-	
+
 }
 
 void creatAllItem()
@@ -996,30 +991,30 @@ item* createItem(item* head,int modle,int& cnt)
 	return head;
 }
 
-item* updateItem(item* barrierItem,int& cnt,int category) //category 1为金币 2为箭头 3为僵尸
+item* updateItem(item* headItem,int& cnt,int category) //category 1为金币 2为箭头 3为僵尸
 {
 	IMAGE image[2];
-	if (barrierItem!=NULL && barrierItem->y > HEIGHT)
+	if (headItem!=NULL && headItem->y > HEIGHT)
 	{
-		item* toDelete = barrierItem;
-		barrierItem = barrierItem->next;
+		item* toDelete = headItem;
+		headItem = headItem->next;
 		free(toDelete);
 		cnt--;	
 	}
-	if (category==3&&barrierItem != NULL && barrierItem->y >= 600 && barrierItem->y <= 750 && barrierItem->modle == steveModle && attackFlag == 1)
+	if (category==3&&headItem != NULL && headItem->y >= 600 && headItem->y <= 750 && headItem->modle == steveModle && attackFlag == 1)
 	{
-		item* toDelete = barrierItem;
-		barrierItem = barrierItem->next;
+		item* toDelete = headItem;
+		headItem = headItem->next;
 		free(toDelete);
 		cnt--;
 		awardZombieStatue = 1;
 		user->points += award * 2;
 		PlaySound("../songs/zombieDied.wav", NULL, SND_ASYNC);
 	}
-	if (barrierItem != NULL && barrierItem->y >= 750 && barrierItem->y <= 800 && barrierItem->modle == steveModle&&jumpFlag==0)
+	if (headItem != NULL && headItem->y >= 750 && headItem->y <= 800 && headItem->modle == steveModle&&jumpFlag==0)
 	{
-		item* toDelete = barrierItem;
-		barrierItem = barrierItem->next;
+		item* toDelete = headItem;
+		headItem = headItem->next;
 		free(toDelete);
 		cnt--;
 		if (category == 1)
@@ -1046,7 +1041,7 @@ item* updateItem(item* barrierItem,int& cnt,int category) //category 1为金币 2为
 			heartCnt++;
 		}
 	}
-	item* head = barrierItem;
+	item* head = headItem;
 	int size;
 	while (head)
 	{
@@ -1146,7 +1141,7 @@ item* updateItem(item* barrierItem,int& cnt,int category) //category 1为金币 2为
 		}
 		head = head->next;
 	}
-	return barrierItem;
+	return headItem;
 }
 
 item* freeItem(item* barrierItem)
@@ -1160,7 +1155,7 @@ item* freeItem(item* barrierItem)
 	return barrierItem;
 }
 
-void heartUpdate(IMAGE heart[2], int heartCnt)
+void heartUpdate()
 {
 	imageLocate heartLocate(0, 0);
 	for (int i = 0; i < heartCnt;i++)
