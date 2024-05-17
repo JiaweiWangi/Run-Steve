@@ -50,6 +50,61 @@ int awardGoldStatus=0;
 int awardZombieStatue=0;
 char Points[128];
 
+int videoNum = 0; // 主界面视频播放第x帧数
+
+// 主界面图片声明
+IMAGE menu;
+IMAGE login;
+IMAGE register1;
+IMAGE start;
+IMAGE runSteve;
+IMAGE menu_1;
+IMAGE login_1;
+IMAGE register_1;
+IMAGE start_1;
+IMAGE runSteve_1;
+IMAGE lLogin;
+IMAGE lRegister;
+IMAGE lStart;
+IMAGE lLogin_1;
+IMAGE lRegister_1;
+IMAGE lStart_1;
+IMAGE loginPage;
+IMAGE registerPage;
+const int menuPageVideoNum = 240;
+IMAGE menuPageVideoImage[menuPageVideoNum];
+
+
+// 当前应该播放第x帧
+int steveImageNum = 0;
+int railImageNum = 0;
+int backgroundImagNum = 0;
+int skyImageNum = 0;
+int attackImgCnt = 0;
+
+// 动画总共帧数
+const int steveNum = 14;
+const int railNum = 4;
+const int backgroundNum = 17;
+const int skyNum = 24;
+const int attackNum = 15;
+
+// 图片声明
+IMAGE gold[2];
+IMAGE arrow[2];
+IMAGE steve[steveNum];
+IMAGE steve1[steveNum];
+IMAGE attack[attackNum];
+IMAGE attack1[attackNum];
+IMAGE zomebie[2][zombieNum];
+IMAGE rail[railNum];
+IMAGE rail1[railNum];
+IMAGE background[backgroundNum];
+IMAGE sky[skyNum];
+IMAGE heart[2];
+IMAGE red;
+
+
 // 游戏界面物品动画的逐帧图片
 // 由于loadimage缩放图片效率过低
 // 若在播放动画时加载 则会造成卡顿
@@ -74,6 +129,14 @@ struct imageLocate
 	int y;
 	imageLocate(int x, int y) : x(x), y(y) {}
 };  // 用于储存静态（不需要放大的）图像坐标
+
+//规定一些静态图片的位置
+imageLocate runSteveLovate(12, 100);
+imageLocate startLocate(132, 433);
+imageLocate loginLocate(110, 580);
+imageLocate registerLocate(21, 700);
+imageLocate steveLocate(0, 0);
+imageLocate railLocate(-90, -200);
 
 struct item
 {
@@ -112,6 +175,7 @@ item* itemGoldApple = NULL;
 item* itemHeart = NULL;
 
 void menuPage(); // 主界面循环
+void menuInit();
 bool imageButtonDetect(imageLocate& locate, IMAGE& image); // 检测鼠标点击位置是否在某个图像上
 void loginAndRegisterPage(IMAGE& page);  // 登录和注册页面
 newUser* readUserInfo(); // 将本地用户存档信息读取至链表
@@ -119,6 +183,7 @@ void updateUserFile(); // 将游戏成绩信息存储至本地
 bool cheackUser(); // 登录时检测输入的账户与本地存储的账户是否一致
 void headText(); // 主界面显示登录状态
 void gamePage(); // 游戏界面循环
+void gameInit();
 void pauseDetect(); // 暂停检测
 void steveMove(imageLocate& steveLocate); // 史蒂夫移动/攻击状态检测
 void steveJump(imageLocate& steveLocate); // 史蒂夫跳跃检测
@@ -145,87 +210,13 @@ int main()
 
 void menuPage()
 {
-	//用户信息初始化
-	user = (newUser*)malloc(sizeof(newUser));
-	user->name[0] = '\0';
-	user->password[0] = '\0';
-	user->points = 0;
-	head = readUserInfo();
 
-	//状态初始化
-	menuStatus = 0; 
-	logORegStatus = 0; 
-	userStatus = 0; 
-	steveModle = 2;
-	jumpFlag = 0;
-	attackFlag = 0;
-	invincibleFlag = 0;
-	hurtStatus = 0;
-
-	//规定一些静态图片的位置
-	imageLocate runSteveLovate(12, 100);
-	imageLocate startLocate(132, 433);
-	imageLocate loginLocate(110, 580);
-	imageLocate registerLocate(21, 700);
-
-	// 主界面图片声明（由于主界面和游戏界面图片较多，实测Easy有加载图片上限，故而都用局部变量）
-	IMAGE menu;
-	IMAGE login;
-	IMAGE register1;
-	IMAGE start;
-	IMAGE runSteve;
-	IMAGE menu_1;
-	IMAGE login_1;
-	IMAGE register_1;
-	IMAGE start_1;
-	IMAGE runSteve_1;
-	IMAGE lLogin;
-	IMAGE lRegister;
-	IMAGE lStart;
-	IMAGE lLogin_1;
-	IMAGE lRegister_1;
-	IMAGE lStart_1;
-	IMAGE loginPage;
-	IMAGE registerPage;
-	char file_name[128];
-	const int menuPageVideoNum = 240;
-	IMAGE menuPageVideoImage[menuPageVideoNum];
-
-	// 主界面图片加载
-	for (int i = 0; i < menuPageVideoNum - 1; i++)
-	{
-		sprintf_s(file_name, "../image/menupagevideo/page%03d.jpg", i);
-		//printf(file_name);
-		loadimage(&menuPageVideoImage[i], file_name);
-	}
-	loadimage(&login, _T("../image/title/login.png"));
-	loadimage(&register1, _T("../image/title/register.png"));
-	loadimage(&start, _T("../image/title/start.png"));
-	loadimage(&runSteve, _T("../image/title/Runsteve.png"));
-	loadimage(&login_1, _T("../image/title/login_1.png"));
-	loadimage(&register_1, _T("../image/title/register_1.png"));
-	loadimage(&start_1, _T("../image/title/start_1.png"));
-	loadimage(&runSteve_1, _T("../image/title/Runsteve_1.png"));
-	loadimage(&lLogin, _T("../image/title/llogin.png"));
-	loadimage(&lRegister, _T("../image/title/lregister.png"));
-	loadimage(&lStart, _T("../image/title/lstart.png"));
-	loadimage(&lLogin_1, _T("../image/title/llogin_1.png"));
-	loadimage(&lRegister_1, _T("../image/title/lregister_1.png"));
-	loadimage(&lStart_1, _T("../image/title/lstart_1.png"));
-	loadimage(&loginPage, _T("../image/title/loginpage.png"));
-	loadimage(&registerPage, _T("../image/title/registerpage.png"));
-	int videoNum = 0; // 主界面视频播放第x帧数
-
-	settextstyle(35, 0, _T("Consolas"));
-	settextcolor(BLACK);
-	setbkcolor(WHITE);
+	menuInit();
 
 	// 背景音乐播放
 	mciSendString("open ../songs/C418.wav alias MySong", NULL, 0, NULL);
 	mciSendString("play MySong", NULL, 0, NULL);
-
 	BeginBatchDraw();
-
 	while (true)
 	{
 		startTime = clock();
@@ -331,6 +322,57 @@ void menuPage()
 	}
 
 	EndBatchDraw();
+}
+
+void menuInit()
+{
+	//用户信息初始化
+	user = (newUser*)malloc(sizeof(newUser));
+	user->name[0] = '\0';
+	user->password[0] = '\0';
+	user->points = 0;
+	head = readUserInfo();
+
+	//状态初始化
+	menuStatus = 0;
+	logORegStatus = 0;
+	userStatus = 0;
+	steveModle = 2;
+	jumpFlag = 0;
+	attackFlag = 0;
+	invincibleFlag = 0;
+	hurtStatus = 0;
+	char file_name[128];
+	
+
+	// 主界面图片加载
+	for (int i = 0; i < menuPageVideoNum - 1; i++)
+	{
+		sprintf_s(file_name, "../image/menupagevideo/page%03d.jpg", i);
+		//printf(file_name);
+		loadimage(&menuPageVideoImage[i], file_name);
+	}
+	loadimage(&login, _T("../image/title/login.png"));
+	loadimage(&register1, _T("../image/title/register.png"));
+	loadimage(&start, _T("../image/title/start.png"));
+	loadimage(&runSteve, _T("../image/title/Runsteve.png"));
+	loadimage(&login_1, _T("../image/title/login_1.png"));
+	loadimage(&register_1, _T("../image/title/register_1.png"));
+	loadimage(&start_1, _T("../image/title/start_1.png"));
+	loadimage(&runSteve_1, _T("../image/title/Runsteve_1.png"));
+	loadimage(&lLogin, _T("../image/title/llogin.png"));
+	loadimage(&lRegister, _T("../image/title/lregister.png"));
+	loadimage(&lStart, _T("../image/title/lstart.png"));
+	loadimage(&lLogin_1, _T("../image/title/llogin_1.png"));
+	loadimage(&lRegister_1, _T("../image/title/lregister_1.png"));
+	loadimage(&lStart_1, _T("../image/title/lstart_1.png"));
+	loadimage(&loginPage, _T("../image/title/loginpage.png"));
+	loadimage(&registerPage, _T("../image/title/registerpage.png"));
+
+	settextstyle(35, 0, _T("Consolas"));
+	settextcolor(BLACK);
+	setbkcolor(WHITE);
+
 }
 
 bool imageButtonDetect(imageLocate& locate, IMAGE& image)
@@ -513,17 +555,14 @@ void updateUserFile()
 		{
 			if (j->score > i->score)
 			{
-				//temp = min->score;
 				tempScore = i->score;
 				tempPoints = i->points;
 				strcpy_s(tempName, i->name);
 				strcpy_s(tempPassword, i->password);
-				//min->data = j->data;
 				i->score = j->score;
 				i->points = j->points;
 				strcpy_s(i->name, j->name);
 				strcpy_s(i->password, j->password);
-				//j->data = temp;
 				j->score = tempScore;
 				j->points = tempPoints;
 				strcpy_s(j->name, tempName);
@@ -598,125 +637,7 @@ void headText()
 //游戏循环
 void gamePage()
 {
-	// 当前应该播放第x帧
-	int steveImageNum = 0;
-	int railImageNum = 0;
-	int backgroundImagNum = 0;
-	int skyImageNum = 0;
-	int attackImgCnt = 0;
-
-	// 动画总共帧数
-	const int steveNum = 14;
-	const int railNum = 4;
-	const int backgroundNum = 17;
-	const int skyNum = 24;
-	const int attackNum = 15;
-
-	// 静态（不需要放大）图片位置
-	imageLocate steveLocate(0, 0);
-	imageLocate railLocate(-90, -200);
-
-	// 图片声明
-	IMAGE gold[2];
-	IMAGE arrow[2];
-	IMAGE steve[steveNum];
-	IMAGE steve1[steveNum];
-	IMAGE attack[attackNum];
-	IMAGE attack1[attackNum];
-	IMAGE zomebie[2][zombieNum];
-	IMAGE rail[railNum];
-	IMAGE rail1[railNum];
-	IMAGE background[backgroundNum];
-	IMAGE sky[skyNum];
-	IMAGE heart[2];
-	IMAGE red;
-
-	// 随位置变化的图片的加载 （伪3D）
-	int size;
-	int y = 200;
-	char file_name[128];
-	char file_name1[128];
-	for (int i = 0; i < 120;i++)
-	{
-		size = (int)((y * 0.1));
-		loadimage(&frameWiseGold[i], "../image/star/gold1.png", size, size, true);
-		loadimage(&frameWiseGold1[i], "../image/star/gold.png", size, size, true);
-		loadimage(&frameWiseArrow[i], "../image/arrow/arrow1.png", size, size, true);
-		loadimage(&frameWiseArrow1[i], "../image/arrow/arrow.png", size, size, true);
-		loadimage(&frameWiseGoldApple[i], "../image/props/goldApple1.png", size, size, true);
-		loadimage(&frameWiseGoldApple1[i], "../image/props/goldApple.png", size, size, true);
-		loadimage(&frameWiseHeart[i], "../image/heart/heart1.png", size, size, true);
-		loadimage(&frameWiseHeart1[i], "../image/heart/heart.png", size, size, true);
-		sprintf_s(file_name, "../image/zombie/zombie%02d.jpg", zombieImgCnt);
-		sprintf_s(file_name1, "../image/zombie1/zombie1%02d.jpg", zombieImgCnt);
-		zombieImgCnt++;
-		if (zombieImgCnt == zombieNum)
-			zombieImgCnt = 0;
-		loadimage(&frameWiseZombie[i], file_name1, size * 3, size * 3, true);
-		loadimage(&frameWiseZombie1[i], file_name, size * 3, size * 3, true);
-		y += 6;
-	}
-	loadimage(&red,"../image/red.png");
-	loadimage(&gold[0], "../image/star/gold1.png");
-	loadimage(&gold[1], "../image/star/gold.png");
-	loadimage(&arrow[0], "../image/arrow/arrow1.png");
-	loadimage(&arrow[1], "../image/arrow/arrow.png");
-	loadimage(&heart[0], "../image/heart/heart.png", 50, 50, true);
-	loadimage(&heart[1], "../image/heart/heart1.png", 50, 50, true);
-	for (steveImageNum = 0; steveImageNum < steveNum; steveImageNum++)
-	{
-		sprintf_s(file_name, "../image/steve/steve%02d.jpg", steveImageNum);
-		sprintf_s(file_name1, "../image/steve1/steve101%02d.jpg", steveImageNum);
-		//printf(file_name);
-		loadimage(&steve[steveImageNum], file_name);
-		loadimage(&steve1[steveImageNum], file_name1);
-
-	}
-	for (railImageNum = 0; railImageNum < railNum; railImageNum++)
-	{
-		sprintf_s(file_name, "../image/rail/rail%d.jpg", railImageNum);
-		sprintf_s(file_name1, "../image/rail1/rail1%d.jpg", railImageNum);
-		loadimage(&rail[railImageNum], file_name,720,1280,true);
-		loadimage(&rail1[railImageNum], file_name1, 720, 1280, true);
-	}
-	for (backgroundImagNum = 0; backgroundImagNum < backgroundNum; backgroundImagNum++)
-	{
-		sprintf_s(file_name, "../image/background/background%02d.jpg", backgroundImagNum);
-		loadimage(&background[backgroundImagNum], file_name);
-	}
-	for (skyImageNum = 0; skyImageNum < skyNum; skyImageNum++)
-	{
-		sprintf_s(file_name, "../image/sky/sky%02d.jpg", skyImageNum);
-		loadimage(&sky[skyImageNum], file_name);
-	}
-	for (attackImgCnt = 0; attackImgCnt < attackNum; attackImgCnt++)
-	{
-		sprintf_s(file_name, "../image/attack/attack%02d.jpg", attackImgCnt);
-		sprintf_s(file_name1, "../image/attack1/attack1%02d.jpg", attackImgCnt);
-		//printf(file_name);
-		loadimage(&attack[attackImgCnt], file_name);
-		loadimage(&attack1[attackImgCnt], file_name1);
-	}
-	for (zombieImgCnt = 0; zombieImgCnt < zombieNum; zombieImgCnt++)
-	{
-		sprintf_s(file_name, "../image/zombie/zombie%02d.jpg", zombieImgCnt);
-		sprintf_s(file_name1, "../image/zombie1/zombie1%02d.jpg", zombieImgCnt);
-		//printf(file_name);
-		loadimage(&zomebie[0][zombieImgCnt], file_name);
-		loadimage(&zomebie[1][zombieImgCnt], file_name1);
-	}
-
-	// 当前播放第x帧 重置
-	attackImgCnt = 0;
-	zombieImgCnt = 0;
-	steveImageNum = 0;	
-	railImageNum = 0;
-	backgroundImagNum = 0;
-	skyImageNum = 1100;
-
-	setbkmode(TRANSPARENT);
-	settextcolor(WHITE);
-
+	gameInit();
 	BeginBatchDraw();
 
 	while (true)
@@ -816,6 +737,98 @@ void gamePage()
 		
 	}
 	EndBatchDraw();
+}
+
+void gameInit()
+{
+
+
+	// 随位置变化的图片的加载 （伪3D）
+	int size;
+	int y = 200;
+	char file_name[128];
+	char file_name1[128];
+	for (int i = 0; i < 120; i++)
+	{
+		size = (int)((y * 0.1));
+		loadimage(&frameWiseGold[i], "../image/star/gold1.png", size, size, true);
+		loadimage(&frameWiseGold1[i], "../image/star/gold.png", size, size, true);
+		loadimage(&frameWiseArrow[i], "../image/arrow/arrow1.png", size, size, true);
+		loadimage(&frameWiseArrow1[i], "../image/arrow/arrow.png", size, size, true);
+		loadimage(&frameWiseGoldApple[i], "../image/props/goldApple1.png", size, size, true);
+		loadimage(&frameWiseGoldApple1[i], "../image/props/goldApple.png", size, size, true);
+		loadimage(&frameWiseHeart[i], "../image/heart/heart1.png", size, size, true);
+		loadimage(&frameWiseHeart1[i], "../image/heart/heart.png", size, size, true);
+		sprintf_s(file_name, "../image/zombie/zombie%02d.jpg", zombieImgCnt);
+		sprintf_s(file_name1, "../image/zombie1/zombie1%02d.jpg", zombieImgCnt);
+		zombieImgCnt++;
+		if (zombieImgCnt == zombieNum)
+			zombieImgCnt = 0;
+		loadimage(&frameWiseZombie[i], file_name1, size * 3, size * 3, true);
+		loadimage(&frameWiseZombie1[i], file_name, size * 3, size * 3, true);
+		y += 6;
+	}
+	loadimage(&red, "../image/red.png");
+	loadimage(&gold[0], "../image/star/gold1.png");
+	loadimage(&gold[1], "../image/star/gold.png");
+	loadimage(&arrow[0], "../image/arrow/arrow1.png");
+	loadimage(&arrow[1], "../image/arrow/arrow.png");
+	loadimage(&heart[0], "../image/heart/heart.png", 50, 50, true);
+	loadimage(&heart[1], "../image/heart/heart1.png", 50, 50, true);
+	for (steveImageNum = 0; steveImageNum < steveNum; steveImageNum++)
+	{
+		sprintf_s(file_name, "../image/steve/steve%02d.jpg", steveImageNum);
+		sprintf_s(file_name1, "../image/steve1/steve101%02d.jpg", steveImageNum);
+		//printf(file_name);
+		loadimage(&steve[steveImageNum], file_name);
+		loadimage(&steve1[steveImageNum], file_name1);
+
+	}
+	for (railImageNum = 0; railImageNum < railNum; railImageNum++)
+	{
+		sprintf_s(file_name, "../image/rail/rail%d.jpg", railImageNum);
+		sprintf_s(file_name1, "../image/rail1/rail1%d.jpg", railImageNum);
+		loadimage(&rail[railImageNum], file_name, 720, 1280, true);
+		loadimage(&rail1[railImageNum], file_name1, 720, 1280, true);
+	}
+	for (backgroundImagNum = 0; backgroundImagNum < backgroundNum; backgroundImagNum++)
+	{
+		sprintf_s(file_name, "../image/background/background%02d.jpg", backgroundImagNum);
+		loadimage(&background[backgroundImagNum], file_name);
+	}
+	for (skyImageNum = 0; skyImageNum < skyNum; skyImageNum++)
+	{
+		sprintf_s(file_name, "../image/sky/sky%02d.jpg", skyImageNum);
+		loadimage(&sky[skyImageNum], file_name);
+	}
+	for (attackImgCnt = 0; attackImgCnt < attackNum; attackImgCnt++)
+	{
+		sprintf_s(file_name, "../image/attack/attack%02d.jpg", attackImgCnt);
+		sprintf_s(file_name1, "../image/attack1/attack1%02d.jpg", attackImgCnt);
+		//printf(file_name);
+		loadimage(&attack[attackImgCnt], file_name);
+		loadimage(&attack1[attackImgCnt], file_name1);
+	}
+	for (zombieImgCnt = 0; zombieImgCnt < zombieNum; zombieImgCnt++)
+	{
+		sprintf_s(file_name, "../image/zombie/zombie%02d.jpg", zombieImgCnt);
+		sprintf_s(file_name1, "../image/zombie1/zombie1%02d.jpg", zombieImgCnt);
+		//printf(file_name);
+		loadimage(&zomebie[0][zombieImgCnt], file_name);
+		loadimage(&zomebie[1][zombieImgCnt], file_name1);
+	}
+
+	// 当前播放第x帧 重置
+	attackImgCnt = 0;
+	zombieImgCnt = 0;
+	steveImageNum = 0;
+	railImageNum = 0;
+	backgroundImagNum = 0;
+	skyImageNum = 1100;
+
+	setbkmode(TRANSPARENT);
+	settextcolor(WHITE);
+
 }
 
 void pauseDetect()
