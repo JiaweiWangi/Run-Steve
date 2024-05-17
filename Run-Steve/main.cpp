@@ -198,7 +198,7 @@ void pointsUpdate(); // 玩家分数更新
 void drawRanking(); // 游戏排行榜绘制
 
 
-int main()
+int main() //程序主函数
 {
 	initgraph(WIDTH, HEIGHT);
 	while (true)
