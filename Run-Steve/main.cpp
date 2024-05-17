@@ -191,7 +191,7 @@ void creatAllItem(); // 所有生成物的创建
 void updateAllItem(); // 所有生成物的更新
 void freeAllItem(); // 所有生成物的清理
 item* createItem(item*,int,int&); // 创建生成物链表
-item* itemUpdate(item* itemGold,int& cnt,int category); // 更新生成物链表 并将其putimage
+item* updateItem(item* itemGold,int& cnt,int category); // 更新生成物链表 并将其putimage
 item* freeItem(item* barrierItem); // 游戏结束后清理item链表
 void heartUpdate(IMAGE heart[2], int heartCnt); // 玩家血量更新
 void pointsUpdate(); // 玩家分数更新
@@ -949,11 +949,11 @@ void creatAllItem()
 
 void updateAllItem()
 {
-	itemGold = itemUpdate(itemGold, goldCnt, 1);
-	itemZombie = itemUpdate(itemZombie, zombieCnt, 3);
-	itemArrow = itemUpdate(itemArrow, arrowCnt, 2);
-	itemGoldApple = itemUpdate(itemGoldApple, goldAppleCnt, 4);
-	itemHeart = itemUpdate(itemHeart, heartItemCnt, 5);
+	itemGold = updateItem(itemGold, goldCnt, 1);
+	itemZombie = updateItem(itemZombie, zombieCnt, 3);
+	itemArrow = updateItem(itemArrow, arrowCnt, 2);
+	itemGoldApple = updateItem(itemGoldApple, goldAppleCnt, 4);
+	itemHeart = updateItem(itemHeart, heartItemCnt, 5);
 }
 
 void freeAllItem() {
@@ -996,7 +996,7 @@ item* createItem(item* head,int modle,int& cnt)
 	return head;
 }
 
-item* itemUpdate(item* barrierItem,int& cnt,int category) //category 1为金币 2为箭头 3为僵尸
+item* updateItem(item* barrierItem,int& cnt,int category) //category 1为金币 2为箭头 3为僵尸
 {
 	IMAGE image[2];
 	if (barrierItem!=NULL && barrierItem->y > HEIGHT)
