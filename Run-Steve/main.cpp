@@ -210,7 +210,7 @@ int main()
 
 void menuPage()
 {
-
+	head = readUserInfo();
 	menuInit();
 
 	// ±³¾°ÒôÀÖ²¥·Å
@@ -331,7 +331,6 @@ void menuInit()
 	user->name[0] = '\0';
 	user->password[0] = '\0';
 	user->points = 0;
-	head = readUserInfo();
 
 	//×´Ì¬³õÊ¼»¯
 	menuStatus = 0;
