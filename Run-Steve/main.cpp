@@ -199,7 +199,7 @@ void drawRanking(); // ”Œœ∑≈≈––∞ÒªÊ÷∆
 
 int main() //≥Ã–Ú÷˜∫Ø ˝
 {
-	initgraph(WIDTH, HEIGHT);
+	initgraph(WIDTH, HEIGHT,1);
 	while (true)
 	{
 		menuPage();
@@ -213,7 +213,7 @@ void menuPage()
 	head = readUserInfo();
 
 	// ±≥æ∞“Ù¿÷≤•∑≈
-	mciSendString("open ../songs/C418.wav alias MySong", NULL, 0, NULL);
+	mciSendString("open ./songs/C418.wav alias MySong", NULL, 0, NULL);
 	mciSendString("play MySong", NULL, 0, NULL);
 	BeginBatchDraw();
 	while (true)
@@ -233,7 +233,7 @@ void menuPage()
 			
 			if (msg.message == WM_LBUTTONDOWN && (userStatus == 1 || userStatus == 3))
 			{
-				PlaySound("../songs/button.wav", NULL, SND_ASYNC);
+				PlaySound("./songs/button.wav", NULL, SND_ASYNC);
 				break;
 			}
 				
@@ -251,7 +251,7 @@ void menuPage()
 			{
 				menuStatus = 1;
 				logORegStatus = 1;
-				PlaySound("../songs/button.wav", NULL, SND_ASYNC);
+				PlaySound("./songs/button.wav", NULL, SND_ASYNC);
 			}
 			else
 			{
@@ -272,7 +272,7 @@ void menuPage()
 			{
 				logORegStatus = 1;
 				menuStatus = 2;
-				PlaySound("../songs/button.wav", NULL, SND_ASYNC);
+				PlaySound("./songs/button.wav", NULL, SND_ASYNC);
 			}
 			else
 			{
@@ -346,26 +346,26 @@ void menuInit()
 	// ÷˜ΩÁ√ÊÕº∆¨º”‘ÿ
 	for (int i = 0; i < menuPageVideoNum - 1; i++)
 	{
-		sprintf_s(file_name, "../image/menupagevideo/page%03d.jpg", i);
+		sprintf_s(file_name, "./image/menupagevideo/page%03d.jpg", i);
 		//printf(file_name);
 		loadimage(&menuPageVideoImage[i], file_name);
 	}
-	loadimage(&login, _T("../image/title/login.png"));
-	loadimage(&register1, _T("../image/title/register.png"));
-	loadimage(&start, _T("../image/title/start.png"));
-	loadimage(&runSteve, _T("../image/title/Runsteve.png"));
-	loadimage(&login_1, _T("../image/title/login_1.png"));
-	loadimage(&register_1, _T("../image/title/register_1.png"));
-	loadimage(&start_1, _T("../image/title/start_1.png"));
-	loadimage(&runSteve_1, _T("../image/title/Runsteve_1.png"));
-	loadimage(&lLogin, _T("../image/title/llogin.png"));
-	loadimage(&lRegister, _T("../image/title/lregister.png"));
-	loadimage(&lStart, _T("../image/title/lstart.png"));
-	loadimage(&lLogin_1, _T("../image/title/llogin_1.png"));
-	loadimage(&lRegister_1, _T("../image/title/lregister_1.png"));
-	loadimage(&lStart_1, _T("../image/title/lstart_1.png"));
-	loadimage(&loginPage, _T("../image/title/loginpage.png"));
-	loadimage(&registerPage, _T("../image/title/registerpage.png"));
+	loadimage(&login, _T("./image/title/login.png"));
+	loadimage(&register1, _T("./image/title/register.png"));
+	loadimage(&start, _T("./image/title/start.png"));
+	loadimage(&runSteve, _T("./image/title/Runsteve.png"));
+	loadimage(&login_1, _T("./image/title/login_1.png"));
+	loadimage(&register_1, _T("./image/title/register_1.png"));
+	loadimage(&start_1, _T("./image/title/start_1.png"));
+	loadimage(&runSteve_1, _T("./image/title/Runsteve_1.png"));
+	loadimage(&lLogin, _T("./image/title/llogin.png"));
+	loadimage(&lRegister, _T("./image/title/lregister.png"));
+	loadimage(&lStart, _T("./image/title/lstart.png"));
+	loadimage(&lLogin_1, _T("./image/title/llogin_1.png"));
+	loadimage(&lRegister_1, _T("./image/title/lregister_1.png"));
+	loadimage(&lStart_1, _T("./image/title/lstart_1.png"));
+	loadimage(&loginPage, _T("./image/title/loginpage.png"));
+	loadimage(&registerPage, _T("./image/title/registerpage.png"));
 
 	settextstyle(35, 0, _T("Consolas"));
 	settextcolor(BLACK);
@@ -481,7 +481,7 @@ void loginAndRegisterPage(IMAGE& page)
 newUser* readUserInfo()
 {
 	head = NULL;
-	fopen_s(&dataFile, "../data/data.txt", "r");
+	fopen_s(&dataFile, "./data/data.txt", "r");
 	while (!feof(dataFile))
 	{
 		newUser* p = (newUser*)malloc(sizeof(newUser));
@@ -572,7 +572,7 @@ void updateUserFile()
 	}
 	//Ω´≈≈∫√–Úµƒ¡¥±Ì–¥»ÎŒƒº˛
 	newUser* temp = head;
-	fopen_s(&dataFile, "../data/data.txt", "w");
+	fopen_s(&dataFile, "./data/data.txt", "w");
 	while (temp != NULL)
 	{
 		fprintf(dataFile, "%s\n", temp->name);
@@ -748,16 +748,16 @@ void gameInit()
 	for (int i = 0; i < 120; i++)
 	{
 		size = (int)((y * 0.1));
-		loadimage(&frameWiseGold[i], "../image/star/gold1.png", size, size, true);
-		loadimage(&frameWiseGold1[i], "../image/star/gold.png", size, size, true);
-		loadimage(&frameWiseArrow[i], "../image/arrow/arrow1.png", size, size, true);
-		loadimage(&frameWiseArrow1[i], "../image/arrow/arrow.png", size, size, true);
-		loadimage(&frameWiseGoldApple[i], "../image/props/goldApple1.png", size, size, true);
-		loadimage(&frameWiseGoldApple1[i], "../image/props/goldApple.png", size, size, true);
-		loadimage(&frameWiseHeart[i], "../image/heart/heart1.png", size, size, true);
-		loadimage(&frameWiseHeart1[i], "../image/heart/heart.png", size, size, true);
-		sprintf_s(file_name, "../image/zombie/zombie%02d.jpg", zombieImgCnt);
-		sprintf_s(file_name1, "../image/zombie1/zombie1%02d.jpg", zombieImgCnt);
+		loadimage(&frameWiseGold[i], "./image/star/gold1.png", size, size, true);
+		loadimage(&frameWiseGold1[i], "./image/star/gold.png", size, size, true);
+		loadimage(&frameWiseArrow[i], "./image/arrow/arrow1.png", size, size, true);
+		loadimage(&frameWiseArrow1[i], "./image/arrow/arrow.png", size, size, true);
+		loadimage(&frameWiseGoldApple[i], "./image/props/goldApple1.png", size, size, true);
+		loadimage(&frameWiseGoldApple1[i], "./image/props/goldApple.png", size, size, true);
+		loadimage(&frameWiseHeart[i], "./image/heart/heart1.png", size, size, true);
+		loadimage(&frameWiseHeart1[i], "./image/heart/heart.png", size, size, true);
+		sprintf_s(file_name, "./image/zombie/zombie%02d.jpg", zombieImgCnt);
+		sprintf_s(file_name1, "./image/zombie1/zombie1%02d.jpg", zombieImgCnt);
 		zombieImgCnt++;
 		if (zombieImgCnt == zombieNum)
 			zombieImgCnt = 0;
@@ -765,17 +765,17 @@ void gameInit()
 		loadimage(&frameWiseZombie1[i], file_name, size * 3, size * 3, true);
 		y += 6;
 	}
-	loadimage(&red, "../image/red.png");
-	loadimage(&gold[0], "../image/star/gold1.png");
-	loadimage(&gold[1], "../image/star/gold.png");
-	loadimage(&arrow[0], "../image/arrow/arrow1.png");
-	loadimage(&arrow[1], "../image/arrow/arrow.png");
-	loadimage(&heart[0], "../image/heart/heart.png", 50, 50, true);
-	loadimage(&heart[1], "../image/heart/heart1.png", 50, 50, true);
+	loadimage(&red, "./image/red.png");
+	loadimage(&gold[0], "./image/star/gold1.png");
+	loadimage(&gold[1], "./image/star/gold.png");
+	loadimage(&arrow[0], "./image/arrow/arrow1.png");
+	loadimage(&arrow[1], "./image/arrow/arrow.png");
+	loadimage(&heart[0], "./image/heart/heart.png", 50, 50, true);
+	loadimage(&heart[1], "./image/heart/heart1.png", 50, 50, true);
 	for (steveImageNum = 0; steveImageNum < steveNum; steveImageNum++)
 	{
-		sprintf_s(file_name, "../image/steve/steve%02d.jpg", steveImageNum);
-		sprintf_s(file_name1, "../image/steve1/steve101%02d.jpg", steveImageNum);
+		sprintf_s(file_name, "./image/steve/steve%02d.jpg", steveImageNum);
+		sprintf_s(file_name1, "./image/steve1/steve101%02d.jpg", steveImageNum);
 		//printf(file_name);
 		loadimage(&steve[steveImageNum], file_name);
 		loadimage(&steve1[steveImageNum], file_name1);
@@ -783,33 +783,33 @@ void gameInit()
 	}
 	for (railImageNum = 0; railImageNum < railNum; railImageNum++)
 	{
-		sprintf_s(file_name, "../image/rail/rail%d.jpg", railImageNum);
-		sprintf_s(file_name1, "../image/rail1/rail1%d.jpg", railImageNum);
+		sprintf_s(file_name, "./image/rail/rail%d.jpg", railImageNum);
+		sprintf_s(file_name1, "./image/rail1/rail1%d.jpg", railImageNum);
 		loadimage(&rail[railImageNum], file_name, 720, 1280, true);
 		loadimage(&rail1[railImageNum], file_name1, 720, 1280, true);
 	}
 	for (backgroundImagNum = 0; backgroundImagNum < backgroundNum; backgroundImagNum++)
 	{
-		sprintf_s(file_name, "../image/background/background%02d.jpg", backgroundImagNum);
+		sprintf_s(file_name, "./image/background/background%02d.jpg", backgroundImagNum);
 		loadimage(&background[backgroundImagNum], file_name);
 	}
 	for (skyImageNum = 0; skyImageNum < skyNum; skyImageNum++)
 	{
-		sprintf_s(file_name, "../image/sky/sky%02d.jpg", skyImageNum);
+		sprintf_s(file_name, "./image/sky/sky%02d.jpg", skyImageNum);
 		loadimage(&sky[skyImageNum], file_name);
 	}
 	for (attackImgCnt = 0; attackImgCnt < attackNum; attackImgCnt++)
 	{
-		sprintf_s(file_name, "../image/attack/attack%02d.jpg", attackImgCnt);
-		sprintf_s(file_name1, "../image/attack1/attack1%02d.jpg", attackImgCnt);
+		sprintf_s(file_name, "./image/attack/attack%02d.jpg", attackImgCnt);
+		sprintf_s(file_name1, "./image/attack1/attack1%02d.jpg", attackImgCnt);
 		//printf(file_name);
 		loadimage(&attack[attackImgCnt], file_name);
 		loadimage(&attack1[attackImgCnt], file_name1);
 	}
 	for (zombieImgCnt = 0; zombieImgCnt < zombieNum; zombieImgCnt++)
 	{
-		sprintf_s(file_name, "../image/zombie/zombie%02d.jpg", zombieImgCnt);
-		sprintf_s(file_name1, "../image/zombie1/zombie1%02d.jpg", zombieImgCnt);
+		sprintf_s(file_name, "./image/zombie/zombie%02d.jpg", zombieImgCnt);
+		sprintf_s(file_name1, "./image/zombie1/zombie1%02d.jpg", zombieImgCnt);
 		//printf(file_name);
 		loadimage(&zomebie[0][zombieImgCnt], file_name);
 		loadimage(&zomebie[1][zombieImgCnt], file_name1);
@@ -1009,7 +1009,7 @@ item* updateItem(item* headItem,int& cnt,int category) //category 1Œ™Ω±“ 2Œ™º˝Õ
 		cnt--;
 		awardZombieStatue = 1;
 		user->points += award * 2;
-		PlaySound("../songs/zombieDied.wav", NULL, SND_ASYNC);
+		PlaySound("./songs/zombieDied.wav", NULL, SND_ASYNC);
 	}
 	if (headItem != NULL && headItem->y >= 750 && headItem->y <= 800 && headItem->modle == steveModle&&jumpFlag==0)
 	{
@@ -1021,23 +1021,23 @@ item* updateItem(item* headItem,int& cnt,int category) //category 1Œ™Ω±“ 2Œ™º˝Õ
 		{
 			user->points += award;
 			awardGoldStatus = 1;
-			PlaySound("../songs/getGold.wav", NULL, SND_ASYNC);
+			PlaySound("./songs/getGold.wav", NULL, SND_ASYNC);
 		}
 		if ((category == 2||category==3)&&!invincibleFlag)
 		{
 			heartCnt--;
 			hurtStatus = 1;
-			PlaySound("../songs/hurt.wav", NULL, SND_ASYNC);
+			PlaySound("./songs/hurt.wav", NULL, SND_ASYNC);
 		}	
 		if (category == 4&& !invincibleFlag)
 		{
 			invincibleStartTime = clock();
 			invincibleFlag = 1;
-			PlaySound("../songs/goldApple.wav", NULL, SND_ASYNC);
+			PlaySound("./songs/goldApple.wav", NULL, SND_ASYNC);
 		}
 		if (category == 5)
 		{
-			PlaySound("../songs/getGold.wav", NULL, SND_ASYNC);
+			PlaySound("./songs/getGold.wav", NULL, SND_ASYNC);
 			heartCnt++;
 		}
 	}
@@ -1055,7 +1055,7 @@ item* updateItem(item* headItem,int& cnt,int category) //category 1Œ™Ω±“ 2Œ™º˝Õ
 				cnt--;
 				awardZombieStatue = 3;
 				user->points += award * 2;
-				PlaySound("../songs/zombieDied.wav", NULL, SND_ASYNC);
+				PlaySound("./songs/zombieDied.wav", NULL, SND_ASYNC);
 			}
 		}
 		if (head->next != NULL && head->next->modle == steveModle&&jumpFlag == 0)
@@ -1070,24 +1070,24 @@ item* updateItem(item* headItem,int& cnt,int category) //category 1Œ™Ω±“ 2Œ™º˝Õ
 				{
 					user->points += award;
 					awardGoldStatus = 1;
-					PlaySound("../songs/getGold.wav", NULL, SND_ASYNC);
+					PlaySound("./songs/getGold.wav", NULL, SND_ASYNC);
 				}
 				
 				if ((category == 2 || category == 3) && !invincibleFlag)
 				{
 					heartCnt--;
 					hurtStatus = 1;
-					PlaySound("../songs/hurt.wav", NULL, SND_ASYNC);
+					PlaySound("./songs/hurt.wav", NULL, SND_ASYNC);
 				}
 				if (category == 4&&!invincibleFlag)
 				{
 					invincibleStartTime = clock();
 					invincibleFlag = 1;
-					PlaySound("../songs/goldApple.wav", NULL, SND_ASYNC);
+					PlaySound("./songs/goldApple.wav", NULL, SND_ASYNC);
 				}
 				if (category == 5)
 				{
-					PlaySound("../songs/getGold.wav", NULL, SND_ASYNC);
+					PlaySound("./songs/getGold.wav", NULL, SND_ASYNC);
 					heartCnt++;
 				}
 			}
