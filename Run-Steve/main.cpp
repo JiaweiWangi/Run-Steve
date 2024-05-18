@@ -11,7 +11,7 @@
 #define WIDTH 540
 #define HEIGHT 920
 FILE* dataFile; // 储存用户数据的文件
-ExMessage msg;
+ExMessage msg;  // 存储用户操作信息
 clock_t fpsMenu = 1000 / 165; // 主页每一帧的时间
 clock_t fpsGame = 1000 / 60;  // 游戏页面每一帧的时间
 
@@ -32,25 +32,23 @@ double heartRate = 0.0003; //回血道具生成概率/每列每帧
 int startTime; // 某一帧的开始时间
 int freamTime; // 加载某一帧所花费的时间
 
+// 声明一些状态
 int menuStatus; //0为初始页面 1为登录页面 2为注册页面
 int logORegStatus; //0为初始 1为输入账号状态 2为输入密码状态 3为输入完成状态
 int userStatus; //0为未登录 1为登录成功 2为登录失败 3为注册成功
-
 int steveModle = 2; // steve当前所处的轨道 1 2 3（从左至右)
 int jumpFlag = 0; // 1 jumping;
 int attackFlag = 0; // 1 attacking
 int invincibleFlag = 0; // 是否处于无敌状态
 int invincibleStartTime; // 无敌时间
-
-int zombieImgCnt = 0; // 当前播放僵尸的第x帧
-const int zombieNum = 14; // 僵尸动画帧数
-
-int hurtStatus=0;
-int awardGoldStatus=0;
-int awardZombieStatue=0;
-char Points[128];
+int hurtStatus=0; // 受伤状态 用于播放受伤反馈动画
+int awardGoldStatus=0; // 拾取金币得分状态 用于播放拾取金币得分反馈动画
+int awardZombieStatue=0; // 击杀僵尸的得分状态 用于播放击杀僵尸得分反馈动画
+char Points[128]; // 存储将int分数转化为char字符串分数
 
 int videoNum = 0; // 主界面视频播放第x帧数
+int zombieImgCnt = 0; // 当前播放僵尸的第x帧
+const int zombieNum = 14; // 僵尸动画帧数
 
 // 主界面图片声明
 IMAGE menu;
