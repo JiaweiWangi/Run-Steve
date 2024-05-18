@@ -408,7 +408,7 @@ void loginAndRegisterPage(IMAGE& page)
 			}
 			else
 			{
-				if (ch[0] != 8 && strlen(user->name) < 15)
+				if (ch[0] != 8 && strlen(user->name) < 15&&((ch[0]>=48&&ch[0]<=57)||(ch[0]>=65&&ch[0]<=90)))
 					strcat_s(user->name, ch);
 			}
 		}
@@ -452,7 +452,7 @@ void loginAndRegisterPage(IMAGE& page)
 			}
 			else
 			{
-				if (ch[0] != 8 && strlen(user->password) < 15)
+				if (ch[0] != 8 && strlen(user->password) < 15 && ((ch[0] >= 48 && ch[0] <= 57) || (ch[0] >= 65 && ch[0] <= 90)))
 					strcat_s(user->password, ch);
 			}
 		}
