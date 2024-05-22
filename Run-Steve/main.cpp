@@ -1254,5 +1254,9 @@ void drawRanking()
 		}
 	}
 	FlushBatchDraw();
-	Sleep(5000);
+	while (1) {
+		peekmessage(&msg);
+		if (msg.message == WM_KEYDOWN)
+			break;
+	}
 }
